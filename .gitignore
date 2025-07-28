@@ -201,3 +201,6 @@ logs/
 *.ipynb
 
 # .ssh
+
+# 忽略 rl_cot/train_dataset/ 目录及其所有内容
+reinforced_cot/train_dataset/
