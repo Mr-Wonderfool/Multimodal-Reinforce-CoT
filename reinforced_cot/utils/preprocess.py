@@ -1,4 +1,3 @@
-import re
 import json
 import torch
 from collections import defaultdict
@@ -7,16 +6,84 @@ from torch.utils.data import DataLoader
 
 from .utils import load_jsonl
 
+# 读取jsonl文件
+def load_jsonl(path):
+    with open(path, "r", encoding="utf-8") as f:
+        return [json.loads(line) for line in f]
 
+
+# 每一条数据的读取与格式化，同时加载图片和文本内容
+class MultiModalQwenDataset(Dataset):
+    def __init__(self, data_list, image_dir, processor, max_length=1024):
+        self.data = data_list # 样本列表
+        self.image_dir = image_dir # 图片目录
+        self.processor = processor # Qwen的AutoProcessor对象
+        self.max_length = max_length # 最大长度
+
+    def __len__(self):
+        return len(self.data)
+
+    def __getitem__(self, idx):
+        # 根据索引读取一条数据
+        item = self.data[idx]
+        image_path = os.path.join(self.image_dir, f"{item['imageId']}.jpg")
+        image = Image.open(image_path).convert("RGB")
+        # 读取问题文本，cot，最终答案
+        instruction = item["instruction"]
+        cot = item["cot"][0]["text"] if item.get("cot") and len(item["cot"]) > 0 else ""
+        answer = item.get("answer", "")
+        messages = [
+            {
+                "role": "user",
+                "content": [
+                    {"type": "image", "image": image},
+                    {"type": "text", "text": instruction}
+                ]
+            }
+        ]
+        # 组织target（推理链+答案），让模型学习如何从图片+问题输出推理链和答案
+        target_text = f"{cot}\n\nFinal answer: {answer}"
+
+        text = self.processor.apply_chat_template(messages, tokenize=False, add_generation_prompt=True)
+        # 使用processor处理文本和图片，生成模型输入
+        model_inputs = self.processor(
+            text=[text],
+            images=[image],
+            padding="max_length",
+            max_length=self.max_length,
+            truncation=True,
+            return_tensors="pt"
+        )
+        # 生成标签，labels是模型需要预测的目标文本
+        labels = self.processor.tokenizer(
+            target_text,
+            padding="max_length",
+            max_length=self.max_length,
+            truncation=True,
+            return_tensors="pt"
+        )["input_ids"]
+
+        out = {k: v.squeeze(0) for k, v in model_inputs.items()}
+        out["labels"] = labels.squeeze(0)
+        return out
+
+
+# 多模态数据预处理器
 class DatasetPreprocessor:
 
-    instruction = "You are an expert Python programmer. You will be given a question (problem specification) and will generate a correct Python program that matches the specification and passes all tests.\n\n### Question:\n"
-    # problem-specific description
-    starter_code = (
-        lambda start_code: f"\n\n### Format: You will use the following starter code to write the solution to the problem and enclose your code within delimiters.\n```python\n{start_code}\n```"
+    instruction = (
+    "You are a visual question answering expert. "
+    "Your task is to analyze the given image carefully, understand the provided question and semantic chain, "
+    "and generate a detailed step-by-step reasoning process (Chain of Thought) to answer the question based on the image content.\n\n"
+    "Semantic Chain Operators Explanation:\n"
+    "- SELECT(object): Focus on a specific object in the image\n"
+    "- RELATE(object, relationship): Find objects related to the main object through a relationship\n"
+    "- QUERY(attribute): Query specific attributes of the object\n"
+    "\n### Question:\n"
     )
     cot_trigger = "\n\n### Answer reasoning:\n"
-    answer_trigger = "\n\n### Therefore the answer code is:\n"
+    answer_trigger = "\n\n### Final answer:\n"
+
 
     # padding constants
     LABEL_PAD_TOKEN_ID = -100
@@ -25,252 +92,101 @@ class DatasetPreprocessor:
         pass
 
     @classmethod
-    def prepare_datasets_and_data_loaders(cls, args, accelerator, tokenizer):
+    def prepare_datasets_and_data_loaders(cls, args, accelerator, processor):
         """
-        For returned data:
-            `forward_kwargs` will be right-padded for supervised setting
-            `generate_prefix_kwargs` will be left-padded for decoder-only models
-                and should be used **for all generate method**
+        对应Qwen2.5-VL多模态场景，args需包含train/val/test的jsonl和图片目录。
+        支持只传train/val或者train/test，也支持三者全传。
         """
         with accelerator.main_process_first():
-            raw_dataset = DatasetDict(
-                {
-                    "train": Dataset.from_list(load_jsonl(args["pipeline"]["train"]["train_file"])),
-                    "test": Dataset.from_list(load_jsonl(args["pipeline"]["test"]["test_file"])),
-                }
+            # 训练集
+            train_data = load_jsonl(args["pipeline"]["train"]["train_file"])
+            train_img_dir = args["pipeline"]["train"]["image_dir"]
+            batch_size_train = args["pipeline"]["train"]["batch_size"]
+
+            # 验证集
+            val_data, val_img_dir, batch_size_val = None, None, None
+            if "val" in args["pipeline"]:
+                val_data = load_jsonl(args["pipeline"]["val"]["val_file"])
+                val_img_dir = args["pipeline"]["val"]["image_dir"]
+                batch_size_val = args["pipeline"]["val"]["batch_size"]
+
+            # 测试集
+            test_data, test_img_dir, batch_size_test = None, None, None
+            if "test" in args["pipeline"]:
+                test_data = load_jsonl(args["pipeline"]["test"]["test_file"])
+                test_img_dir = args["pipeline"]["test"]["image_dir"]
+                batch_size_test = args["pipeline"]["test"]["batch_size"]
+
+            num_workers = args.get("num_workers", 2)
+            max_length = args.get("max_input_length", 1024)
+
+            train_dataset = MultiModalQwenDataset(
+                data_list=train_data,
+                image_dir=train_img_dir,
+                processor=processor,
+                max_length=max_length
             )
 
-            # turn list[dict] into organized batch
-            def tokenize_fn(batch, args, tokenizer):
-                new_batch = defaultdict(list)
-                all_keys = list(batch.keys())
-                for item_values in zip(*(batch[k] for k in all_keys)):
-                    item = {k: item_values[i] for i, k in enumerate(all_keys)}
-
-                    question_id = item["question_id"]
-                    problem_description = item["problem_description"]
-                    answer_cot = item["chain_of_thought"]
-                    start_code = item["starter_code"]
-                    # ! only use the code for response, ignore natural language explanations
-                    response_code = item["response_code"]
-                    # for compiler input
-                    prompt = item["prompt"]
-                    test_func = item["test"]
-
-                    input = f"{cls.instruction}{problem_description}{cls.starter_code(start_code)}{cls.cot_trigger}"
-                    # code + explanations as output
-                    output = f"{answer_cot}{cls.answer_trigger}{response_code}"
-                    prefix_text = (
-                        f"{cls.instruction}{problem_description}{cls.starter_code(start_code)}{cls.cot_trigger}"
-                    )
-
-                    # encode tokens to input_ids
-                    input_encode = tokenizer(input, add_special_tokens=False)
-                    output_encode = tokenizer(output, add_special_tokens=False)
-                    prefix_encode = tokenizer(prefix_text, add_special_tokens=False)
-
-                    input_ids = input_encode["input_ids"] + output_encode["input_ids"] + [tokenizer.eos_token_id]
-                    labels = (
-                        [cls.LABEL_PAD_TOKEN_ID] * len(input_encode["input_ids"])
-                        + output_encode["input_ids"]
-                        + [tokenizer.eos_token_id]
-                    )
-                    # all valid entries at the moment
-                    attention_mask = [1] * len(input_ids)
-                    prefix = prefix_encode["input_ids"]
-                    prefix_attention_mask = prefix_encode["attention_mask"]
-
-                    # Truncation according to max length in arguments
-                    input_ids_max_length = len(input_ids)
-                    args_max_length = args["max_input_length"]
-                    input_ids = input_ids[:args_max_length]
-                    labels = labels[:args_max_length]
-                    attention_mask = attention_mask[:args_max_length]
-                    prefix = prefix[:args_max_length]
-                    prefix_attention_mask = prefix_attention_mask[:args_max_length]
-
-                    new_batch["input_ids"].append(input_ids)
-                    new_batch["labels"].append(labels)
-                    new_batch["attention_mask"].append(attention_mask)
-                    new_batch["prefix"].append(prefix)
-                    new_batch["prefix_attention_mask"].append(prefix_attention_mask)
-
-                    new_batch["question_id"].append(question_id)
-                    new_batch["answer_cot"].append(answer_cot)
-                    new_batch["input_ids_max_length"].append(input_ids_max_length)
-                    
-                    # for compiler input
-                    new_batch["prompt"].append(prompt)
-                    new_batch["test_func"].append(test_func)
-
-                return new_batch
-
-            tokenized_dataset = DatasetDict(
-                {
-                    mode: dataset.map(
-                        lambda batch: tokenize_fn(batch, args, tokenizer),
-                        batched=True,
-                        remove_columns=dataset.column_names,
-                    )
-                    for mode, dataset in raw_dataset.items()
-                }
-            )
-
-        def collate_fn(batch, tokenizer):
-            max_input_length = max([len(item["input_ids"]) for item in batch])
-            max_target_length = max([len(item["labels"]) for item in batch])
-            max_prefix_length = max([len(item["prefix"]) for item in batch])
-
-            input_ids = []
-            attention_mask = []
-            labels, labels_left_padded = [], []
-            prefix_left_padded = []
-            prefix_attention_mask_left_padded = []
-            
-            prompts = []
-            test_funcs = []
-            question_ids = []
-
-            for item in batch:
-                input_ids.append(
-                    item["input_ids"] + [tokenizer.pad_token_id] * (max_input_length - len(item["input_ids"]))
+            if val_data is not None:
+                val_dataset = MultiModalQwenDataset(
+                    data_list=val_data,
+                    image_dir=val_img_dir,
+                    processor=processor,
+                    max_length=max_length
                 )
-                attention_mask.append(item["attention_mask"] + [0] * (max_input_length - len(item["attention_mask"])))
-                labels.append(item["labels"] + [cls.LABEL_PAD_TOKEN_ID] * (max_target_length - len(item["labels"])))
+            else:
+                val_dataset = None
 
-                labels_left_padded.append(
-                    [cls.LABEL_PAD_TOKEN_ID] * (max_target_length - len(item["labels"])) + item["labels"]
+            if test_data is not None:
+                test_dataset = MultiModalQwenDataset(
+                    data_list=test_data,
+                    image_dir=test_img_dir,
+                    processor=processor,
+                    max_length=max_length
                 )
-                prefix_left_padded.append(
-                    [tokenizer.pad_token_id] * (max_prefix_length - len(item["prefix"])) + item["prefix"]
-                )
-                prefix_attention_mask_left_padded.append(
-                    [0] * (max_prefix_length - len(item["prefix_attention_mask"])) + item["prefix_attention_mask"]
-                )
-                
-                prompts.append(item["prompt"])
-                test_funcs.append(item["test_func"])
-                question_ids.append(item["question_id"])
+            else:
+                test_dataset = None
 
-            # for model training (right padded for supervised training)
-            # add question id for test time logging
-            forward_kwargs = {
-                "question_ids": question_ids,
-                "input_ids": torch.LongTensor(input_ids),
-                "attention_mask": torch.BoolTensor(attention_mask),
-                "labels": torch.LongTensor(labels),
-            }
-
-            # for inferene (left padded)
-            generate_prefix_kwargs = {
-                "question_ids": question_ids,
-                "input_ids": torch.LongTensor(prefix_left_padded),
-                "attention_mask": torch.BoolTensor(prefix_attention_mask_left_padded),
-                "labels": torch.LongTensor(labels_left_padded),
-                # pass import statements and test functions for compiler feedback
-                "prompts": prompts,
-                "test_funcs": test_funcs,
-            }
-
-            return {
-                "forward_kwargs": forward_kwargs,
-                "generate_prefix_kwargs": generate_prefix_kwargs,
-            }
+        def collate_fn(batch):
+            out = {}
+            for k in batch[0].keys():
+                out[k] = torch.stack([b[k] for b in batch])
+            return out
 
         train_dataloader = DataLoader(
-            tokenized_dataset["train"],
-            batch_size=args["pipeline"]["train"]["batch_size"],
-            num_workers=args["num_workers"],
-            pin_memory=True,
+            train_dataset,
+            batch_size=batch_size_train,
             shuffle=True,
-            collate_fn=lambda batch: collate_fn(batch, tokenizer),
-        )
-        test_dataloader = DataLoader(
-            tokenized_dataset["test"],
-            batch_size=args["pipeline"]["test"]["batch_size"],
-            num_workers=args["num_workers"],
+            num_workers=num_workers,
             pin_memory=True,
-            shuffle=False,
-            collate_fn=lambda batch: collate_fn(batch, tokenizer),
+            collate_fn=collate_fn,
         )
 
-        return (tokenized_dataset["train"], train_dataloader), (tokenized_dataset["test"], test_dataloader)
+        val_dataloader = None
+        if val_dataset is not None:
+            val_dataloader = DataLoader(
+                val_dataset,
+                batch_size=batch_size_val,
+                shuffle=False,
+                num_workers=num_workers,
+                pin_memory=True,
+                collate_fn=collate_fn,
+            )
 
+        test_dataloader = None
+        if test_dataset is not None:
+            test_dataloader = DataLoader(
+                test_dataset,
+                batch_size=batch_size_test,
+                shuffle=False,
+                num_workers=num_workers,
+                pin_memory=True,
+                collate_fn=collate_fn,
+            )
 
-class CodePreprocessor:
-
-    @staticmethod
-    def remove_python_comments(code: str) -> str:
-        """
-        Remove **single line** comment (marked with #) from given code
-        """
-        uncommented_code = re.sub(r"#.*$", "", code, flags=re.MULTILINE)
-        # Remove excessive blank lines that result from comment removal
-        return re.sub(r"\n\s*\n", "\n", uncommented_code).strip()
-
-    @staticmethod
-    def extract_code_from_response(
-        full_response: str,
-        remove_comments: bool = True,
-        wrap_extracted_code: bool = False,
-    ):
-        """
-        Parameter:
-            full_response: str, the response text containing code blocks
-            remove_comments: bool, whether to remove comments from the extracted code
-            wrap_extracted_code: bool, whether to wrap the extracted code in code block delimiters
-        """
-        # match code pattern from response
-        code_pattern = re.compile(r"```python\n([\s\S]*?)```")
-        match = code_pattern.search(full_response)
-        if match:
-            code_content = match.group(1)
-            if remove_comments:
-                code_content = CodePreprocessor.remove_python_comments(code_content)
-            # re-wrap the code
-            if wrap_extracted_code:
-                extracted_code = f"```python\n{code_content}```"
-            else:
-                extracted_code = code_content
-            return extracted_code
-
-        else:
-            return ""
-
-    @staticmethod
-    def extract_code_from_jsonl(
-        input_file_path: str,
-        output_file_path: str,
-        response_field: str = "response",
-        code_field: str = "response_code",
-        remove_comments: bool = True,
-    ):
-        # match code pattern from response
-        code_pattern = re.compile(r"```python\n([\s\S]*?)```")
-        input_data = load_jsonl(input_file_path)
-        # record number for processed lines and expected lines
-        total_lines = len(input_data)
-        processed_lines = 0
-        with open(output_file_path, "w", encoding="utf-8") as outfile:
-            for each_dict in input_data:
-                match = code_pattern.search(each_dict[response_field])
-                if match:
-                    code_content = match.group(1)
-                    if remove_comments:
-                        code_content = CodePreprocessor.remove_python_comments(code_content)
-                    # re-wrap the code
-                    extracted_code = f"```python\n{code_content}```"
-
-                    each_dict[code_field] = extracted_code
-
-                    outfile.write(json.dumps(each_dict) + "\n")
-
-                    processed_lines += 1
-
-                else:
-                    print(
-                        f"Code not found in item {each_dict['question_id']} from {input_file_path}, response length: {len(each_dict[response_field])}"
-                    )
-                    each_dict[code_field] = ""
-
-        print(f"Processing finished, total lines: {total_lines}, processed lines: {processed_lines}")
+        # 返回全部数据集与加载器
+        return (
+            (train_dataset, train_dataloader),
+            (val_dataset, val_dataloader),
+            (test_dataset, test_dataloader),
+        )
