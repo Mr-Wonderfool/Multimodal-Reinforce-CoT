@@ -2,13 +2,11 @@ numpy==1.26.4
 datasets>=2.19.1
 tqdm>=4.66.0
 tensorboardX
-transformers==4.44.2
-accelerate==0.31.0
-peft>=0.11.1
-# efficient training & quantization
-bitsandbytes>=0.43.0
+transformers==4.51.3
+accelerate>= 0.26.0
+peft==0.8.2
+bitsandbytes==0.46.1
 deepspeed>=0.14.0
-# Qwen specific utility
 qwen-vl-utils==0.0.8
-# image processing
 Pillow>=10.0.0
+torch==2.2.2    
