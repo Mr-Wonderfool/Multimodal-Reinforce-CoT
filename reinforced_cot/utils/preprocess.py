@@ -1,8 +1,13 @@
 import json
 import torch
 from collections import defaultdict
-from datasets import Dataset, DatasetDict
+# from datasets import Dataset, DatasetDict
+from torch.utils.data import Dataset
 from torch.utils.data import DataLoader
+import os
+from PIL import Image
+import numpy as np
+from transformers import AutoProcessor
 
 from .utils import load_jsonl
 
@@ -12,22 +17,42 @@ def load_jsonl(path):
         return [json.loads(line) for line in f]
 
 
+processor = AutoProcessor.from_pretrained(
+    "/share/home/u19666033/xzm/qwen/Qwen2.5-VL-3B-Instruct",
+    use_fast=False
+)
+
 # 每一条数据的读取与格式化，同时加载图片和文本内容
 class MultiModalQwenDataset(Dataset):
     def __init__(self, data_list, image_dir, processor, max_length=1024):
-        self.data = data_list # 样本列表
+        self.samples = data_list # 样本列表
         self.image_dir = image_dir # 图片目录
         self.processor = processor # Qwen的AutoProcessor对象
         self.max_length = max_length # 最大长度
 
     def __len__(self):
-        return len(self.data)
+        return len(self.samples)
 
     def __getitem__(self, idx):
         # 根据索引读取一条数据
-        item = self.data[idx]
+        item = self.samples[idx]
         image_path = os.path.join(self.image_dir, f"{item['imageId']}.jpg")
-        image = Image.open(image_path).convert("RGB")
+        # image = Image.open(image_path).convert("RGB")
+        try:
+            image = Image.open(image_path).convert("RGB")
+            arr = np.array(image)
+            print(f"[DEBUG] idx={idx}, path={image_path}, shape={arr.shape}, dtype={arr.dtype}, type={type(image)}")
+            assert arr.dtype == np.uint8
+            assert arr.ndim == 3 and arr.shape[2] == 3 
+        except Exception as e:
+            print(f"[读取图片失败] idx={idx}, image_path={image_path}, error={e}")
+            raise
+        
+        if not isinstance(image, Image.Image):
+            print(f"[类型异常] 非PIL图片: idx={idx}, path={image_path}, type={type(image)}")
+            raise RuntimeError(f"Bad image type: {type(image)} at {image_path}")
+        
+
         # 读取问题文本，cot，最终答案
         instruction = item["instruction"]
         cot = item["cot"][0]["text"] if item.get("cot") and len(item["cot"]) > 0 else ""
@@ -45,27 +70,30 @@ class MultiModalQwenDataset(Dataset):
         target_text = f"{cot}\n\nFinal answer: {answer}"
 
         text = self.processor.apply_chat_template(messages, tokenize=False, add_generation_prompt=True)
-        # 使用processor处理文本和图片，生成模型输入
-        model_inputs = self.processor(
-            text=[text],
-            images=[image],
-            padding="max_length",
-            max_length=self.max_length,
-            truncation=True,
-            return_tensors="pt"
-        )
-        # 生成标签，labels是模型需要预测的目标文本
-        labels = self.processor.tokenizer(
-            target_text,
-            padding="max_length",
-            max_length=self.max_length,
-            truncation=True,
-            return_tensors="pt"
-        )["input_ids"]
 
+        # Debug: 再加一层images列表类型打印
+        images_for_proc = [image]
+        if any([not isinstance(img, Image.Image) for img in images_for_proc]):
+            print(f"[送入processor前类型异常] idx={idx}, path={image_path}, type={[type(img) for img in images_for_proc]}")
+            raise RuntimeError("Some image(s) in images_for_proc not PIL.Image.Image")
+
+        model_inputs = self.processor(
+        text=[text],
+        images=[image],
+        padding="max_length",
+        max_length=self.max_length,
+        truncation=True,
+        return_tensors="pt"
+        )
+        # 生成标签，保证与 input_ids 长度完全一致
+        labels = model_inputs["input_ids"].clone()
+        # 找到 prompt 部分长度，只让 target 部分作为 label，其余置为 -100
+        prompt_length = len(self.processor.tokenizer(text, return_tensors="pt")["input_ids"][0])
+        labels[:, :prompt_length] = -100  # 只让答案部分做监督
         out = {k: v.squeeze(0) for k, v in model_inputs.items()}
         out["labels"] = labels.squeeze(0)
         return out
+
 
 
 # 多模态数据预处理器
@@ -157,7 +185,8 @@ class DatasetPreprocessor:
             train_dataset,
             batch_size=batch_size_train,
             shuffle=True,
-            num_workers=num_workers,
+            # num_workers=num_workers,
+            num_workers=0,
             pin_memory=True,
             collate_fn=collate_fn,
         )
@@ -168,7 +197,8 @@ class DatasetPreprocessor:
                 val_dataset,
                 batch_size=batch_size_val,
                 shuffle=False,
-                num_workers=num_workers,
+                # num_workers=num_workers,
+                num_workers=0,
                 pin_memory=True,
                 collate_fn=collate_fn,
             )
@@ -179,7 +209,8 @@ class DatasetPreprocessor:
                 test_dataset,
                 batch_size=batch_size_test,
                 shuffle=False,
-                num_workers=num_workers,
+                # num_workers=num_workers,
+                num_workers=0,
                 pin_memory=True,
                 collate_fn=collate_fn,
             )
