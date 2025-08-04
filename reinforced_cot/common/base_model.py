@@ -16,16 +16,16 @@ from reinforced_cot.utils.preprocess import DatasetPreprocessor
 class BaseVLM:
 
     # timeout < runtime error < compile error < partial pass < full pass
-    REWARD_CONFIG = {
-        "未提供代码": -0.5,
-        "未找到 Solution 类": -0.3,
-        "Solution 类中未找到方法": -0.5,
-        "执行主体出错": -1.0,
-        "执行超时": -1.5,
-        # internal error for dataset
-        "未提供测试": 0.0,
-        "无测试用例": 0.0,
-    }
+    # REWARD_CONFIG = {
+    #     "未提供代码": -0.5,
+    #     "未找到 Solution 类": -0.3,
+    #     "Solution 类中未找到方法": -0.5,
+    #     "执行主体出错": -1.0,
+    #     "执行超时": -1.5,
+    #     # internal error for dataset
+    #     "未提供测试": 0.0,
+    #     "无测试用例": 0.0,
+    # }
 
     def __init__(self, config):
         self.train_config = config["pipeline"]["train"]
@@ -39,9 +39,9 @@ class BaseVLM:
         )
         set_seed(self.train_config["seed"] + self.accelerator.process_index)
 
-        # placeholder for model, tokenizer
+        # placeholder for model
         self.model = None
-        self.tokenizer = None
+        self.processor = None
 
         # placeholder for logger and recorder
         self.recorder = None
@@ -54,54 +54,59 @@ class BaseVLM:
             self.recorder = Recorder(self.logger.tb_dir)
 
         # evaluation metric
-        self.ret_dict = {"reward": 0.0, "info": ""}
+        # self.ret_dict = {"reward": 0.0, "info": ""}
 
     def inference(
         self,
-        problem_description: str,
-        max_new_tokens: int = 512,
+        image,          # PIL Image 或 tensor
+        instruction,    # str
+        max_new_tokens: int = 128,
         device: str = "cuda" if torch.cuda.is_available() else "cpu",
     ):
         """
-        Generates a Chain-of-Thought and an answer code for a single Leetcode problem.
-
-        Parameters:
-            problem_description (str): The full text of the Leetcode problem.
-            max_new_tokens (int): The maximum number of new tokens to generate.
-
-        Returns:
-            tuple[str, str]: A tuple containing the predicted Chain-of-Thought
-                and the predicted answer code.
+        对单个样本做推理，生成思维链和答案
         """
         self.model.eval()
         self.model.to(device)
 
-        inputs = self.tokenizer(problem_description, return_tensors="pt", truncation=True).to(device)
+        # 构造对话模板
+        messages = [{
+            "role": "user",
+            "content": [
+                {"type": "image", "image": image},
+                {"type": "text", "text": instruction}
+            ]
+        }]
+        text = self.processor.apply_chat_template(messages, tokenize=False, add_generation_prompt=True)
+        model_inputs = self.processor(
+            text=[text],
+            images=[image],
+            padding="max_length",
+            max_length=self.config.get("max_input_length", 1024),
+            truncation=True,
+            return_tensors="pt"
+        )
+        model_inputs = {k: v.to(device) for k, v in model_inputs.items()}
 
         with torch.no_grad():
-            generated_ids = self.model.generate(
-                **inputs,
+            output_ids = self.model.generate(
+                **model_inputs,
                 max_new_tokens=max_new_tokens,
-                num_beams=1,
-                do_sample=False,
-                pad_token_id=self.tokenizer.pad_token_id,
-                eos_token_id=self.tokenizer.eos_token_id,
+                pad_token_id=self.processor.tokenizer.pad_token_id,
+                eos_token_id=self.processor.tokenizer.eos_token_id,
             )
+        output_text = self.processor.batch_decode(
+            output_ids, skip_special_tokens=True, clean_up_tokenization_spaces=True
+        )[0]
 
-        full_output = self.tokenizer.decode(
-            generated_ids[0], skip_special_tokens=True, clean_up_tokenization_spaces=True
-        )
-
-        generated_text_only = full_output[len(problem_description) :]
-
-        if DatasetPreprocessor.answer_trigger in generated_text_only:
-            parts = generated_text_only.split(DatasetPreprocessor.answer_trigger, 1)
+        # 解析输出文本，提取思维链和答案
+        if DatasetPreprocessor.answer_trigger in output_text:
+            parts = output_text.split(DatasetPreprocessor.answer_trigger, 1)
             pred_cot = parts[0].strip()
-            pred_answer_code = parts[1].strip()
-            return pred_cot, pred_answer_code
+            pred_answer = parts[1].strip()
+            return {"cot": pred_cot, "answer": pred_answer}
         else:
-            print("Warning: No answer code found in the generated text.")
-            return generated_text_only.strip(), ""
+            return {"cot": output_text.strip(), "answer": ""}
 
     def train(self):
         raise NotImplementedError
@@ -119,105 +124,105 @@ class BaseVLM:
         self.tokenizer.save_pretrained(save_path)
 
     def __str__(self):
-        return "BaseCodeModel"
+        return "BaseMultiModalVQAModel"
 
-    def _run_with_timeout(self, func, timeout: float):
-        result = {}
+    # def _run_with_timeout(self, func, timeout: float):
+    #     result = {}
 
-        def wrapper():
-            try:
-                func()
-                result["status"] = "success"
-            except AssertionError:
-                result["status"] = "assert_error"
-            except Exception:
-                result["status"] = "runtime_error"
+    #     def wrapper():
+    #         try:
+    #             func()
+    #             result["status"] = "success"
+    #         except AssertionError:
+    #             result["status"] = "assert_error"
+    #         except Exception:
+    #             result["status"] = "runtime_error"
 
-        thread = threading.Thread(target=wrapper)
-        thread.start()
-        thread.join(timeout)
-        if thread.is_alive():
-            return "timeout"
-        return result.get("status", "runtime_error")
+    #     thread = threading.Thread(target=wrapper)
+    #     thread.start()
+    #     thread.join(timeout)
+    #     if thread.is_alive():
+    #         return "timeout"
+    #     return result.get("status", "runtime_error")
 
-    def _prepare_eval_return(self, ret_info: str):
-        return {"reward": self.REWARD_CONFIG.get(ret_info, 0.0), "info": ret_info, "status": ret_info}
+    # def _prepare_eval_return(self, ret_info: str):
+    #     return {"reward": self.REWARD_CONFIG.get(ret_info, 0.0), "info": ret_info, "status": ret_info}
 
-    def evaluate_code_generation(self, code: str, prompt: str, test_func: str) -> float:
-        """
-        Run all the test cases and return eval metrics from compiler
-        Returns:
-            ret_dict: {[reward]: float, [info]: str}
-        """
+    # def evaluate_code_generation(self, code: str, prompt: str, test_func: str) -> float:
+    #     """
+    #     Run all the test cases and return eval metrics from compiler
+    #     Returns:
+    #         ret_dict: {[reward]: float, [info]: str}
+    #     """
 
-        if code is None:
-            return self._prepare_eval_return("未提供代码")
+    #     if code is None:
+    #         return self._prepare_eval_return("未提供代码")
 
-        if test_func is None:
-            return self._prepare_eval_return("未提供测试")
+    #     if test_func is None:
+    #         return self._prepare_eval_return("未提供测试")
 
-        # 提取测试代码中所有 assert 语句
-        assert_lines = [line.strip() for line in test_func.strip().split("\n") if line.strip().startswith("assert ")]
-        total = len(assert_lines)
-        if total == 0:
-            return self._prepare_eval_return("无测试用例")
+    #     # 提取测试代码中所有 assert 语句
+    #     assert_lines = [line.strip() for line in test_func.strip().split("\n") if line.strip().startswith("assert ")]
+    #     total = len(assert_lines)
+    #     if total == 0:
+    #         return self._prepare_eval_return("无测试用例")
 
-        correct_results = 0
-        wrong_results = 0
-        runtime_errors = 0
+    #     correct_results = 0
+    #     wrong_results = 0
+    #     runtime_errors = 0
 
-        full_code = f"{prompt}\n\n{code}"
-        global_env = {}
+    #     full_code = f"{prompt}\n\n{code}"
+    #     global_env = {}
 
-        def exec_main_code():
-            exec(full_code, global_env)
+    #     def exec_main_code():
+    #         exec(full_code, global_env)
 
-        status = self._run_with_timeout(exec_main_code, timeout=15.0)
-        if status == "timeout":
-            return self._prepare_eval_return("执行超时")
-        elif status == "runtime_error":
-            return self._prepare_eval_return("执行主体出错")
+    #     status = self._run_with_timeout(exec_main_code, timeout=15.0)
+    #     if status == "timeout":
+    #         return self._prepare_eval_return("执行超时")
+    #     elif status == "runtime_error":
+    #         return self._prepare_eval_return("执行主体出错")
 
-        Solution = global_env.get("Solution", None)
-        if Solution is None:
-            return self._prepare_eval_return("未找到 Solution 类")
+    #     Solution = global_env.get("Solution", None)
+    #     if Solution is None:
+    #         return self._prepare_eval_return("未找到 Solution 类")
 
-        method_names = [
-            name for name in dir(Solution) if not name.startswith("__") and callable(getattr(Solution, name))
-        ]
-        if not method_names:
-            return self._prepare_eval_return("Solution 类中未找到方法")
+    #     method_names = [
+    #         name for name in dir(Solution) if not name.startswith("__") and callable(getattr(Solution, name))
+    #     ]
+    #     if not method_names:
+    #         return self._prepare_eval_return("Solution 类中未找到方法")
 
-        method_name = method_names[0]
+    #     method_name = method_names[0]
 
-        def candidate(**kwargs):
-            return getattr(Solution(), method_name)(**kwargs)
+    #     def candidate(**kwargs):
+    #         return getattr(Solution(), method_name)(**kwargs)
 
-        global_env["candidate"] = candidate
+    #     global_env["candidate"] = candidate
 
-        for line in assert_lines:
+    #     for line in assert_lines:
 
-            def exec_assert():
-                exec(line, global_env)
+    #         def exec_assert():
+    #             exec(line, global_env)
 
-            status = self._run_with_timeout(exec_assert, timeout=5.0)
+    #         status = self._run_with_timeout(exec_assert, timeout=5.0)
 
-            if status == "success":
-                correct_results += 1
-            elif status == "assert_error":
-                wrong_results += 1
-            elif status == "timeout":
-                runtime_errors += 1
-            else:
-                runtime_errors += 1
+    #         if status == "success":
+    #             correct_results += 1
+    #         elif status == "assert_error":
+    #             wrong_results += 1
+    #         elif status == "timeout":
+    #             runtime_errors += 1
+    #         else:
+    #             runtime_errors += 1
 
-        score = correct_results / total if total > 0 else 0.0
-        ret_info = f"执行成功: {total}个断言, {correct_results}个通过, {wrong_results}个失败, {runtime_errors}个错误."
-        return {
-            "reward": round(score, 4),
-            "info": ret_info,
-            "status": "测试通过",
-        }  # 返回 0.0000 ~ 1.0000 的得分
+    #     score = correct_results / total if total > 0 else 0.0
+    #     ret_info = f"执行成功: {total}个断言, {correct_results}个通过, {wrong_results}个失败, {runtime_errors}个错误."
+    #     return {
+    #         "reward": round(score, 4),
+    #         "info": ret_info,
+    #         "status": "测试通过",
+    #     }  # 返回 0.0000 ~ 1.0000 的得分
 
 
 class PolicyAndValueModel(nn.Module):
