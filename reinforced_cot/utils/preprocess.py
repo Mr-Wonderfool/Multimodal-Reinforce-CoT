@@ -37,21 +37,7 @@ class MultiModalQwenDataset(Dataset):
         # 根据索引读取一条数据
         item = self.samples[idx]
         image_path = os.path.join(self.image_dir, f"{item['imageId']}.jpg")
-        # image = Image.open(image_path).convert("RGB")
-        try:
-            image = Image.open(image_path).convert("RGB")
-            arr = np.array(image)
-            print(f"[DEBUG] idx={idx}, path={image_path}, shape={arr.shape}, dtype={arr.dtype}, type={type(image)}")
-            assert arr.dtype == np.uint8
-            assert arr.ndim == 3 and arr.shape[2] == 3 
-        except Exception as e:
-            print(f"[读取图片失败] idx={idx}, image_path={image_path}, error={e}")
-            raise
-        
-        if not isinstance(image, Image.Image):
-            print(f"[类型异常] 非PIL图片: idx={idx}, path={image_path}, type={type(image)}")
-            raise RuntimeError(f"Bad image type: {type(image)} at {image_path}")
-        
+        image = Image.open(image_path).convert("RGB")  
 
         # 读取问题文本，cot，最终答案
         instruction = item["instruction"]
@@ -71,19 +57,13 @@ class MultiModalQwenDataset(Dataset):
 
         text = self.processor.apply_chat_template(messages, tokenize=False, add_generation_prompt=True)
 
-        # Debug: 再加一层images列表类型打印
-        images_for_proc = [image]
-        if any([not isinstance(img, Image.Image) for img in images_for_proc]):
-            print(f"[送入processor前类型异常] idx={idx}, path={image_path}, type={[type(img) for img in images_for_proc]}")
-            raise RuntimeError("Some image(s) in images_for_proc not PIL.Image.Image")
-
         model_inputs = self.processor(
-        text=[text],
-        images=[image],
-        padding="max_length",
-        max_length=self.max_length,
-        truncation=True,
-        return_tensors="pt"
+            text=[text],
+            images=[image],
+            padding="max_length",
+            max_length=self.max_length,
+            truncation=True,
+            return_tensors="pt"
         )
         # 生成标签，保证与 input_ids 长度完全一致
         labels = model_inputs["input_ids"].clone()
@@ -128,21 +108,21 @@ class DatasetPreprocessor:
         with accelerator.main_process_first():
             # 训练集
             train_data = load_jsonl(args["pipeline"]["train"]["train_file"])
-            train_img_dir = args["pipeline"]["train"]["image_dir"]
+            train_img_dir = args["image_dir"]
             batch_size_train = args["pipeline"]["train"]["batch_size"]
 
             # 验证集
             val_data, val_img_dir, batch_size_val = None, None, None
             if "val" in args["pipeline"]:
                 val_data = load_jsonl(args["pipeline"]["val"]["val_file"])
-                val_img_dir = args["pipeline"]["val"]["image_dir"]
+                val_img_dir = args["image_dir"]
                 batch_size_val = args["pipeline"]["val"]["batch_size"]
 
             # 测试集
             test_data, test_img_dir, batch_size_test = None, None, None
             if "test" in args["pipeline"]:
                 test_data = load_jsonl(args["pipeline"]["test"]["test_file"])
-                test_img_dir = args["pipeline"]["test"]["image_dir"]
+                test_img_dir = args["image_dir"]
                 batch_size_test = args["pipeline"]["test"]["batch_size"]
 
             num_workers = args.get("num_workers", 2)

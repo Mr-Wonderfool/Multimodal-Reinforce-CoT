@@ -7,10 +7,13 @@ from tqdm import tqdm
 from torch.optim import AdamW
 from collections import defaultdict
 from peft import get_peft_model, LoraConfig, PeftModel
-from transformers import AutoTokenizer, AutoModelForCausalLM, BitsAndBytesConfig, get_linear_schedule_with_warmup
+from transformers import AutoProcessor, AutoModelForVision2Seq, BitsAndBytesConfig, get_linear_schedule_with_warmup
+from tensorboardX import SummaryWriter
+
+
 
 from reinforced_cot.common import BaseVLM
-from reinforced_cot.utils.preprocess import DatasetPreprocessor, CodePreprocessor
+from reinforced_cot.utils.preprocess import DatasetPreprocessor
 
 
 class SupervisedFineTuning(BaseVLM):
@@ -26,16 +29,12 @@ class SupervisedFineTuning(BaseVLM):
                 bnb_4bit_compute_dtype=torch.bfloat16,
             )
 
-        # load model and tokenizer
-        self.tokenizer = AutoTokenizer.from_pretrained(sft_config["tokenizer_path"], use_fast=True)
-        self.model = AutoModelForCausalLM.from_pretrained(
+        # 加载多模态processor和模型
+        self.processor = AutoProcessor.from_pretrained(sft_config["tokenizer_path"])
+        self.model = AutoModelForVision2Seq.from_pretrained(
             sft_config["model_path"], quantization_config=quantization_config
         )
-        self.model.resize_token_embeddings(len(self.tokenizer))
-        # ? change id for special token
-        self.tokenizer.pad_token_id = 1
-        self.tokenizer.eos_token_id = 2
-
+        self.tokenizer = self.processor.tokenizer  
         # apply LoRA configuration if specified
         if "lora" in sft_config:
             if self.accelerator.is_main_process:
@@ -48,15 +47,16 @@ class SupervisedFineTuning(BaseVLM):
                 self.logger.INFO("LoRA applied successfully.")
                 self.model.print_trainable_parameters()
 
-        (self.train_dataset, self.train_dataloader), (self.test_dataset, self.test_dataloader) = (
+        (self.train_dataset, self.train_dataloader), (self.val_dataset, self.val_dataloader), (self.test_dataset, self.test_dataloader) = (
             DatasetPreprocessor.prepare_datasets_and_data_loaders(
-                args=sft_config, accelerator=self.accelerator, tokenizer=self.tokenizer
+                args=sft_config, accelerator=self.accelerator, processor=self.processor
             )
         )
 
         self.n_epochs = self.train_config["n_epochs"]
         self.max_input_length = sft_config["max_input_length"]
         self.max_response_length = sft_config["max_response_length"]
+        
         num_training_steps = (
             len(self.train_dataloader) // self.accelerator.num_processes * self.n_epochs
         ) // sft_config["gradient_accumulation_steps"]
@@ -118,6 +118,9 @@ class SupervisedFineTuning(BaseVLM):
                 )
             )
 
+        if self.accelerator.is_main_process:
+            self.tb_writer = SummaryWriter(log_dir=os.path.join(sft_config["log_dir"], "tensorboard"))
+
     def _train_one_epoch(self):
         self.model.train()
         epoch_result_dict = defaultdict(list)
@@ -130,8 +133,8 @@ class SupervisedFineTuning(BaseVLM):
             for idx, batch in t:
                 with self.accelerator.accumulate(self.model):
                     # pop logging info
-                    batch["forward_kwargs"].pop("question_ids")
-                    output = self.model(**batch["forward_kwargs"])
+                    batch = {k: v for k, v in batch.items() if k != "forward_kwargs"}  # 保险起见
+                    output = self.model(**batch)
                     loss = output.loss
                     self.optimizer.zero_grad()
                     self.accelerator.backward(loss)
@@ -187,6 +190,7 @@ class SupervisedFineTuning(BaseVLM):
                     epoch_result_dict["loss"] = curr_loss
                     self.logger.INFO(f"IN EPOCH {epoch}: loss {curr_loss:.4f}")
                     self.recorder.record("train/epoch_loss", curr_loss, step=self.global_step)
+                    self.tb_writer.add_scalar('Loss/train', curr_loss, epoch)
 
         # final dump of records
         if self.accelerator.is_main_process:
@@ -194,93 +198,91 @@ class SupervisedFineTuning(BaseVLM):
 
     def evaluate(self, tag: str = None):
         self.model.eval()
+        # dataloader = self.val_dataloader if use_val and self.val_dataloader is not None else self.test_dataloader
 
-        total_pass_rate_on_this_process = 0.0
-        num_items_on_this_process = 0
+        total_correct = 0
+        total_count = 0
 
         local_log_samples = []
 
         for batch in tqdm(
-            self.test_dataloader, disable=not self.accelerator.is_main_process, desc="Parallel Eval Loop"
+            self.test_dataloader, disable=not self.accelerator.is_main_process, desc="Eval Loop"
         ):
-            generation_kwargs = batch["generate_prefix_kwargs"]
-            input_ids = generation_kwargs.pop("input_ids")
-            attention_mask = generation_kwargs.pop("attention_mask")
+            images = batch["images"]           # list[PIL.Image] 或 tensor
+            instructions = batch["instructions"]  # list[str]
+            answers = batch["answers"]             # list[str]
+            messages_batch = [
+                {
+                    "role": "user",
+                    "content": [
+                        {"type": "image", "image": img},
+                        {"type": "text", "text": instr}
+                    ]
+                }
+                for img, instr in zip(images, instructions)
+            ]
 
-            output_sequences = self.accelerator.unwrap_model(self.model).generate(
-                input_ids=input_ids,
-                attention_mask=attention_mask,
-                max_new_tokens=self.max_response_length,
-                do_sample=False,
-                top_p=None,
-                temperature=1.0,
-                pad_token_id=self.tokenizer.pad_token_id,
-                eos_token_id=self.tokenizer.eos_token_id,
+
+            # 用processor得到输入
+            text_batch = [self.processor.apply_chat_template([msg], tokenize=False, add_generation_prompt=True) for msg in messages_batch]
+            model_inputs = self.processor(
+                text=text_batch,
+                images=images,
+                padding="max_length",
+                max_length=self.max_input_length,
+                truncation=True,
+                return_tensors="pt"
             )
-            # extract only the answer (get rid of input prompt
-            prompt_length = input_ids.shape[1]
-            generated_tokens = output_sequences[:, prompt_length:]
-            predictions = self.tokenizer.batch_decode(generated_tokens, skip_special_tokens=True)
+            model_inputs = {k: v.to(self.accelerator.device) for k, v in model_inputs.items()}
 
-            # parallel scoring on cpu
-            prompts = batch["generate_prefix_kwargs"]["prompts"]
-            test_funcs = batch["generate_prefix_kwargs"]["test_funcs"]
-            question_ids = batch["generate_prefix_kwargs"]["question_ids"]
-
-            for i in range(len(predictions)):
-                pred_text = predictions[i]
-
-                eval_dict = self.evaluate_code_generation(
-                    CodePreprocessor.extract_code_from_response(pred_text), prompts[i], test_funcs[i]
+            with torch.no_grad():
+                output_ids = self.model.generate(
+                    **model_inputs,
+                    max_new_tokens=self.max_response_length,
+                    pad_token_id=self.processor.tokenizer.pad_token_id,
+                    eos_token_id=self.processor.tokenizer.eos_token_id,
                 )
+            # 解码输出
+            output_texts = self.processor.batch_decode(output_ids, skip_special_tokens=True, clean_up_tokenization_spaces=True)
 
-                total_pass_rate_on_this_process += eval_dict.get("pass_percent", 0.0)
+            # 逐条判分（字符串比较，可按实际需要自定义）
+            for i, (gt_ans, pred_text, instr) in enumerate(zip(answers, output_texts, instructions)):
+                gt_ans_clean = gt_ans.strip().lower()
+                pred_clean = pred_text.strip().lower()
 
-                # 5% change of logging
-                if np.random.rand() < 0.05:
-                    # Reconstruct the loggable response dictionary
-                    pred_answer_code = CodePreprocessor.extract_code_from_response(
-                        pred_text, remove_comments=True, wrap_extracted_code=False
-                    )
-                    wrapped_answer_code = f"```python\n{pred_answer_code}```"
+                # 简单包含式判分，也可做模糊匹配或后处理
+                is_correct = int(gt_ans_clean in pred_clean)
+                total_correct += is_correct
+                total_count += 1
 
-                    log_item = {
-                        "question_id": question_ids[i],
-                        "pred_cot": pred_text.strip(),
-                        "pred_answer_code": wrapped_answer_code.strip(),
-                        "eval_result": eval_dict,
-                    }
-                    local_log_samples.append(log_item)
+                # log样本
+                local_log_samples.append({
+                    "instruction": instr,
+                    "gt_answer": gt_ans,
+                    "prediction": pred_text,
+                    "is_correct": is_correct
+                })
 
-            num_items_on_this_process += len(predictions)
+        # 分布式结果聚合
+        results_tensor = torch.tensor([total_correct, total_count], dtype=torch.float32, device=self.accelerator.device)
+        if torch.distributed.is_initialized():
+            torch.distributed.all_reduce(results_tensor, op=torch.distributed.ReduceOp.SUM)
+        global_correct, global_total = int(results_tensor[0].item()), int(results_tensor[1].item())
 
-        # gather all log samples to the main process
-        gathered_log_samples = [None] * self.accelerator.num_processes
-        torch.distributed.all_gather_object(gathered_log_samples, local_log_samples)
-
+        # 日志保存，只在主进程
         if self.accelerator.is_main_process:
-            all_samples = [item for sublist in gathered_log_samples for item in sublist]
+            accuracy = global_correct / global_total if global_total > 0 else 0.0
             json_path = "eval_samples.json" if not tag else f"eval_samples_{tag}.json"
-
-            if all_samples:
+            if local_log_samples:
                 res_path = os.path.join(self.logger.result_dir, json_path)
-                # Open the file once and dump the entire list
                 with open(res_path, "w", encoding="utf-8") as f:
-                    json.dump(all_samples, f, indent=2, ensure_ascii=False)
-                self.logger.INFO(f"Saved {len(all_samples)} evaluation samples to {res_path}")
+                    json.dump(local_log_samples, f, indent=2, ensure_ascii=False)
+                self.logger.INFO(f"Saved {len(local_log_samples)} evaluation samples to {res_path}")
+            self.logger.INFO(f"Evaluation accuracy: {accuracy:.4f}")
 
-        # aggregate numeric results across processes
-        local_results = torch.tensor(
-            [total_pass_rate_on_this_process, num_items_on_this_process], device=self.accelerator.device
-        )
-        torch.distributed.all_reduce(local_results, op=torch.distributed.ReduceOp.SUM)
-
-        global_total_pass_rate = local_results[0].item()
-        global_total_items = local_results[1].item()
-
-        mean_pass_rate = global_total_pass_rate / global_total_items if global_total_items > 0 else 0.0
-
-        return mean_pass_rate
+            accuracy = global_correct / global_total if global_total > 0 else 0.0
+        return accuracy
+ 
 
     def __str__(self):
         return "SFT"
@@ -288,18 +290,12 @@ class SupervisedFineTuning(BaseVLM):
     @classmethod
     def load(cls, model_path: str, base_model_path: str = None, device: str = "cuda"):
         """
-        Loads a model and tokenizer from a specified path.
-        This method automatically detects if the checkpoint is a full model or a
-        LoRA adapter and loads it appropriately.
-
-        :param model_path: Path to the saved model checkpoint directory.
-        :param base_model_path: (Optional) Path to the original base model.
-                            Required only if loading a LoRA adapter.
-        :return: A tuple of (model, tokenizer) ready for inference.
+         Loads a Qwen2.5-VL model and processor from the specified path.
+         Supports both full models and LoRA adapters.
         """
-        tokenizer = AutoTokenizer.from_pretrained(model_path)
+        processor = AutoProcessor.from_pretrained(model_path)
 
-        # Check if the checkpoint is a LoRA adapter
+        # 检查是否为 LoRA adapter
         adapter_config_path = os.path.join(model_path, "adapter_config.json")
         is_lora = os.path.exists(adapter_config_path)
 
@@ -308,20 +304,21 @@ class SupervisedFineTuning(BaseVLM):
             if base_model_path is None:
                 raise ValueError("A `base_model_path` must be provided to load a LoRA adapter.")
 
-            model = AutoModelForCausalLM.from_pretrained(
+            model = Qwen2_5_VLForConditionalGeneration.from_pretrained(
                 base_model_path, torch_dtype=torch.bfloat16, device_map={"": device}
             )
 
+        
             model = PeftModel.from_pretrained(model, model_path)
             print("##### Successfully loaded LoRA adapter. #####")
 
         else:
             print(f"##### No LoRA adapter detected. Loading full model from {model_path}. #####")
-            model = AutoModelForCausalLM.from_pretrained(
-                model_path, torch_dtype=torch.bfloat16, device_map={"": device}
-            )
+            model = Qwen2_5_VLForConditionalGeneration.from_pretrained(
+                 model_path, torch_dtype=torch.bfloat16, device_map={"": device}
+           )
             print("##### Successfully loaded full model. #####")
 
         model.eval()
 
-        return model, tokenizer
+        return model, processor
