@@ -1,10 +1,11 @@
 SFT:
-  model_path: ../../Qwen2.5-VL-3B-Instruct
-  tokenizer_path: ../../Qwen2.5-VL-3B-Instruct
-  log_dir: ../logs
+  model_path: ../../../qwen/Qwen2.5-VL-3B-Instruct
+  tokenizer_path: ../../../qwen/Qwen2.5-VL-3B-Instruct
+  log_dir: ../../logs
+  image_dir: ../../../data/multimodal_cot/images
   num_workers: 4
   max_input_length: 2048
-  # max_response_length: 1024
+  max_response_length: 1024
   gradient_accumulation_steps: 2
   # whether to apply quantization
   quantization: true
@@ -14,22 +15,20 @@ SFT:
       seed: 42
       logging_epoch_freq: 1
       saving_epoch_freq: 6
-      train_file: train_dataset/train_data.jsonl
-      image_dir: train_dataset/images 
-      batch_size: 2
+      train_file: ../../../data/multimodal_cot/train_data.jsonl
+      batch_size: 1
       n_epochs: 12
       clip_grad_norm: 1.0
       optimizer:
         learning_rate: 1.0e-5
         weight_decay: 0
-    val:                                             
-      val_file: train_dataset/dev_data.jsonl
-      image_dir: train_dataset/images
-      batch_size: 2
+    val:
+      val_file: ../../../data/multimodal_cot/dev_data.jsonl
+      batch_size: 1
     test:
-      test_file: train_dataset/test_data.jsonl
-      image_dir: train_dataset/images
-      batch_size: 2
+      test_file: ../../../data/multimodal_cot/test.jsonl
+      batch_size: 1
+      evaluating_epoch_freq: 1
 
   lora:
     r: 4
@@ -44,4 +43,4 @@ SFT:
       # - down_proj
     lora_dropout: 0.05
     bias: none
-    task_type: CAUSAL_LM
+    task_type: CAUSAL_LMs

@@ -6,7 +6,7 @@
 echo "----- installing python packages -----"
 pip install -r requirements.txt
 echo "----- setting up torch -----"
-conda install pytorch==2.3.1 torchvision==0.18.1 torchaudio==2.3.1 pytorch-cuda=11.8 -c pytorch -c nvidia
+pip install torch==2.2.2 torchvision==0.17.2 torchaudio==2.2.2 --index-url https://download.pytorch.org/whl/cu121
 # set up custom packages
 echo "----- Setting up project package -----"
 pip install -e .

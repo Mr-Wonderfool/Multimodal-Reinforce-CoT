@@ -1,5 +1,5 @@
 # ! /bin/bash
-# srun -p L40 -J xzm_reinforce_cot -N 1 --ntasks-per-node=1 -w gpu4009 --gres=gpu:l40:3 --cpus-per-task=18 --pty /bin/bash
+# srun -p A800 -J xzm_reinforce_cot -N 1 --ntasks-per-node=1 -w gpu8011 --gres=gpu:a800:1 --cpus-per-task=6 --pty /bin/bash
 export TOKENIZERS_PARALLELISM=True
 
 # Get the absolute path to the workspace root directory
@@ -10,7 +10,7 @@ training_config_file="$WS_ROOT/configs/train/sft.yaml"
 main_script_path="$WS_ROOT/reinforced_cot/main.py"
 
 training_stage="sft"
-num_processes='3'
+num_processes='1'
 main_process_port='8888'
 
 echo "Starting sft experiment ...."

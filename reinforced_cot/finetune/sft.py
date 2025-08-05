@@ -1,16 +1,12 @@
 import os
 import json
 import torch
-import numpy as np
-import torch.distributed
 from tqdm import tqdm
+import torch.distributed
 from torch.optim import AdamW
 from collections import defaultdict
 from peft import get_peft_model, LoraConfig, PeftModel
 from transformers import AutoProcessor, AutoModelForVision2Seq, BitsAndBytesConfig, get_linear_schedule_with_warmup
-from tensorboardX import SummaryWriter
-
-
 
 from reinforced_cot.common import BaseVLM
 from reinforced_cot.utils.preprocess import DatasetPreprocessor
@@ -118,9 +114,6 @@ class SupervisedFineTuning(BaseVLM):
                 )
             )
 
-        if self.accelerator.is_main_process:
-            self.tb_writer = SummaryWriter(log_dir=os.path.join(sft_config["log_dir"], "tensorboard"))
-
     def _train_one_epoch(self):
         self.model.train()
         epoch_result_dict = defaultdict(list)
@@ -190,7 +183,6 @@ class SupervisedFineTuning(BaseVLM):
                     epoch_result_dict["loss"] = curr_loss
                     self.logger.INFO(f"IN EPOCH {epoch}: loss {curr_loss:.4f}")
                     self.recorder.record("train/epoch_loss", curr_loss, step=self.global_step)
-                    self.tb_writer.add_scalar('Loss/train', curr_loss, epoch)
 
         # final dump of records
         if self.accelerator.is_main_process:
@@ -304,7 +296,7 @@ class SupervisedFineTuning(BaseVLM):
             if base_model_path is None:
                 raise ValueError("A `base_model_path` must be provided to load a LoRA adapter.")
 
-            model = Qwen2_5_VLForConditionalGeneration.from_pretrained(
+            model = AutoModelForVision2Seq.from_pretrained(
                 base_model_path, torch_dtype=torch.bfloat16, device_map={"": device}
             )
 
@@ -314,7 +306,7 @@ class SupervisedFineTuning(BaseVLM):
 
         else:
             print(f"##### No LoRA adapter detected. Loading full model from {model_path}. #####")
-            model = Qwen2_5_VLForConditionalGeneration.from_pretrained(
+            model = AutoModelForVision2Seq.from_pretrained(
                  model_path, torch_dtype=torch.bfloat16, device_map={"": device}
            )
             print("##### Successfully loaded full model. #####")

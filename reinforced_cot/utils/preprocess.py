@@ -1,34 +1,22 @@
-import json
+import os
 import torch
-from collections import defaultdict
-# from datasets import Dataset, DatasetDict
+from PIL import Image
 from torch.utils.data import Dataset
 from torch.utils.data import DataLoader
-import os
-from PIL import Image
-import numpy as np
 from transformers import AutoProcessor
 
 from .utils import load_jsonl
 
-# 读取jsonl文件
-def load_jsonl(path):
-    with open(path, "r", encoding="utf-8") as f:
-        return [json.loads(line) for line in f]
-
-
-processor = AutoProcessor.from_pretrained(
-    "/share/home/u19666033/xzm/qwen/Qwen2.5-VL-3B-Instruct",
-    use_fast=False
-)
 
 # 每一条数据的读取与格式化，同时加载图片和文本内容
 class MultiModalQwenDataset(Dataset):
     def __init__(self, data_list, image_dir, processor, max_length=1024):
-        self.samples = data_list # 样本列表
-        self.image_dir = image_dir # 图片目录
-        self.processor = processor # Qwen的AutoProcessor对象
-        self.max_length = max_length # 最大长度
+        self.samples = data_list  # 样本列表
+        self.image_dir = image_dir  # 图片目录
+        self.processor = processor  # Qwen的AutoProcessor对象
+        self.max_length = max_length  # 最大长度
+        self.instruction = DatasetPreprocessor.INSTRUCTION
+        self.label_pad_token_id = DatasetPreprocessor.LABEL_PAD_TOKEN_ID
 
     def __len__(self):
         return len(self.samples)
@@ -37,25 +25,22 @@ class MultiModalQwenDataset(Dataset):
         # 根据索引读取一条数据
         item = self.samples[idx]
         image_path = os.path.join(self.image_dir, f"{item['imageId']}.jpg")
-        image = Image.open(image_path).convert("RGB")  
+        image = Image.open(image_path).convert("RGB")
 
         # 读取问题文本，cot，最终答案
-        instruction = item["instruction"]
+        user_prompt = self.instruction + item["instruction"]
         cot = item["cot"][0]["text"] if item.get("cot") and len(item["cot"]) > 0 else ""
         answer = item.get("answer", "")
-        messages = [
-            {
-                "role": "user",
-                "content": [
-                    {"type": "image", "image": image},
-                    {"type": "text", "text": instruction}
-                ]
-            }
-        ]
-        # 组织target（推理链+答案），让模型学习如何从图片+问题输出推理链和答案
-        target_text = f"{cot}\n\nFinal answer: {answer}"
+        assistant_response = f"<think>{cot}</think>\n<answer>{answer}</answer>"
 
-        text = self.processor.apply_chat_template(messages, tokenize=False, add_generation_prompt=True)
+        user_content = [{"type": "image", "image": image}, {"type": "text", "text": user_prompt}]
+        prompt_only_messages = [{"role": "user", "content": user_content}]
+        full_messages = [
+        {"role": "user", "content": user_content},
+        {"role": "assistant", "content": [{"type": "text", "text": assistant_response}]},
+    ]
+
+        text = self.processor.apply_chat_template(full_messages, tokenize=False, add_generation_prompt=False)
 
         model_inputs = self.processor(
             text=[text],
@@ -63,41 +48,40 @@ class MultiModalQwenDataset(Dataset):
             padding="max_length",
             max_length=self.max_length,
             truncation=True,
-            return_tensors="pt"
+            return_tensors="pt",
         )
-        # 生成标签，保证与 input_ids 长度完全一致
+
+        prompt_text = self.processor.apply_chat_template(
+            prompt_only_messages, tokenize=False, add_generation_prompt=True
+        )
+        prompt_inputs = self.processor.tokenizer(text=[prompt_text], return_tensors="pt")
+        prompt_length = prompt_inputs["input_ids"].shape[1]
+
         labels = model_inputs["input_ids"].clone()
-        # 找到 prompt 部分长度，只让 target 部分作为 label，其余置为 -100
-        prompt_length = len(self.processor.tokenizer(text, return_tensors="pt")["input_ids"][0])
-        labels[:, :prompt_length] = -100  # 只让答案部分做监督
+        # mask out the part corresponding to prompts
+        labels[0, :prompt_length] = self.label_pad_token_id
         out = {k: v.squeeze(0) for k, v in model_inputs.items()}
         out["labels"] = labels.squeeze(0)
         return out
 
 
-
 # 多模态数据预处理器
 class DatasetPreprocessor:
 
-    instruction = (
-    "You are a visual question answering expert. "
-    "Your task is to analyze the given image carefully, understand the provided question and semantic chain, "
-    "and generate a detailed step-by-step reasoning process (Chain of Thought) to answer the question based on the image content.\n\n"
-    "Semantic Chain Operators Explanation:\n"
-    "- SELECT(object): Focus on a specific object in the image\n"
-    "- RELATE(object, relationship): Find objects related to the main object through a relationship\n"
-    "- QUERY(attribute): Query specific attributes of the object\n"
-    "\n### Question:\n"
+    INSTRUCTION = (
+        "You are an expert visual reasoning assistant. "
+        "You will be provided with an image and some questions related to its content. "
+        "First, generate a detailed, step-by-step chain of thought, "
+        "and enclose this reasoning process within <think> tags. "
+        "After your reasoning, provide a concise final answer and enclose it within <answer> tags.\n"
+        "Your reasoning may involve these operators:\n"
+        "- SELECT(object): Focus on a specific object in the image.\n"
+        "- RELATE(object, relationship): Find objects related to the main object.\n"
+        "- QUERY(attribute): Query specific attributes of the object.\n\n"
+        "\n### Question:\n"
     )
-    cot_trigger = "\n\n### Answer reasoning:\n"
-    answer_trigger = "\n\n### Final answer:\n"
-
-
     # padding constants
     LABEL_PAD_TOKEN_ID = -100
-
-    def __init__(self):
-        pass
 
     @classmethod
     def prepare_datasets_and_data_loaders(cls, args, accelerator, processor):
@@ -105,55 +89,34 @@ class DatasetPreprocessor:
         对应Qwen2.5-VL多模态场景，args需包含train/val/test的jsonl和图片目录。
         支持只传train/val或者train/test，也支持三者全传。
         """
-        with accelerator.main_process_first():
-            # 训练集
-            train_data = load_jsonl(args["pipeline"]["train"]["train_file"])
-            train_img_dir = args["image_dir"]
-            batch_size_train = args["pipeline"]["train"]["batch_size"]
+        max_length = args.get("max_input_length", 1024)
+        num_workers = args.get("num_workers", 0)
 
-            # 验证集
-            val_data, val_img_dir, batch_size_val = None, None, None
-            if "val" in args["pipeline"]:
-                val_data = load_jsonl(args["pipeline"]["val"]["val_file"])
-                val_img_dir = args["image_dir"]
-                batch_size_val = args["pipeline"]["val"]["batch_size"]
+        def _prepare_split(split_name):
+            if split_name not in args["pipeline"]:
+                return None, None
 
-            # 测试集
-            test_data, test_img_dir, batch_size_test = None, None, None
-            if "test" in args["pipeline"]:
-                test_data = load_jsonl(args["pipeline"]["test"]["test_file"])
-                test_img_dir = args["image_dir"]
-                batch_size_test = args["pipeline"]["test"]["batch_size"]
+            config = args["pipeline"][split_name]
+            data_file_key = f"{split_name}_file"
+            if data_file_key not in config:
+                return None, None
 
-            num_workers = args.get("num_workers", 2)
-            max_length = args.get("max_input_length", 1024)
+            data = load_jsonl(config[data_file_key])
+            img_dir = args["image_dir"]
+            batch_size = config["batch_size"]
 
-            train_dataset = MultiModalQwenDataset(
-                data_list=train_data,
-                image_dir=train_img_dir,
+            dataset = MultiModalQwenDataset(
+                data_list=data,
+                image_dir=img_dir,
                 processor=processor,
-                max_length=max_length
+                max_length=max_length,
             )
+            return dataset, batch_size
 
-            if val_data is not None:
-                val_dataset = MultiModalQwenDataset(
-                    data_list=val_data,
-                    image_dir=val_img_dir,
-                    processor=processor,
-                    max_length=max_length
-                )
-            else:
-                val_dataset = None
-
-            if test_data is not None:
-                test_dataset = MultiModalQwenDataset(
-                    data_list=test_data,
-                    image_dir=test_img_dir,
-                    processor=processor,
-                    max_length=max_length
-                )
-            else:
-                test_dataset = None
+        with accelerator.main_process_first():
+            train_dataset, batch_size_train = _prepare_split("train")
+            val_dataset, batch_size_val = _prepare_split("val")
+            test_dataset, batch_size_test = _prepare_split("test")
 
         def collate_fn(batch):
             out = {}
@@ -165,8 +128,7 @@ class DatasetPreprocessor:
             train_dataset,
             batch_size=batch_size_train,
             shuffle=True,
-            # num_workers=num_workers,
-            num_workers=0,
+            num_workers=num_workers,
             pin_memory=True,
             collate_fn=collate_fn,
         )
@@ -177,8 +139,7 @@ class DatasetPreprocessor:
                 val_dataset,
                 batch_size=batch_size_val,
                 shuffle=False,
-                # num_workers=num_workers,
-                num_workers=0,
+                num_workers=num_workers,
                 pin_memory=True,
                 collate_fn=collate_fn,
             )
@@ -189,8 +150,7 @@ class DatasetPreprocessor:
                 test_dataset,
                 batch_size=batch_size_test,
                 shuffle=False,
-                # num_workers=num_workers,
-                num_workers=0,
+                num_workers=num_workers,
                 pin_memory=True,
                 collate_fn=collate_fn,
             )

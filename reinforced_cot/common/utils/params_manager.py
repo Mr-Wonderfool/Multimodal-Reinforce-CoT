@@ -14,6 +14,7 @@ class ParamsManager:
         config = config[tag]
         # change relative path to abs path
         config["log_dir"] = os.path.join(config_dir_path, config["log_dir"])
+        config["image_dir"] = os.path.join(config_dir_path, config["image_dir"])
         config["model_path"] = os.path.join(config_dir_path, config["model_path"])
         if "sft_model_path" in config:
             config["sft_model_path"] = os.path.join(config_dir_path, config["sft_model_path"])
@@ -22,6 +23,7 @@ class ParamsManager:
         config["pipeline"]["train"]["train_file"] = os.path.join(
             config_dir_path, config["pipeline"]["train"]["train_file"]
         )
+        config["pipeline"]["val"]["val_file"] = os.path.join(config_dir_path, config["pipeline"]["val"]["val_file"])
         config["pipeline"]["test"]["test_file"] = os.path.join(config_dir_path, config["pipeline"]["test"]["test_file"])
 
         return config
