@@ -14,7 +14,7 @@ from accelerate.utils import DistributedType
 
 from reinforced_cot.finetune.updater import PPOUpdater
 from reinforced_cot.common.base_model import PolicyAndValueModel, RewardModel
-from reinforced_cot.utils.preprocess import DatasetPreprocessor, CodePreprocessor
+from reinforced_cot.utils.preprocess import DatasetPreprocessor
 from reinforced_cot.common import BaseVLM
 
 
