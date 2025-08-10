@@ -157,12 +157,23 @@ class SupervisedFineTuning(BaseVLM):
                 curr_loss = sum(epoch_result_dict["loss"]) / len(epoch_result_dict["loss"])
                 if epoch % self.evaluating_epoch_freq == 0:
                     curr_pass_rate = self.evaluate(tag=str(epoch))
+                    # val_pass_rate = None
+                    # test_pass_rate = None
+                    # if self.val_dataloader is not None:
+                    #     val_pass_rate = self.evaluate(tag=f"val_{epoch}", use_val=True)
+                    # if self.test_dataloader is not None:
+                    #     test_pass_rate = self.evaluate(tag=f"test_{epoch}", use_val=False)
+                    # curr_pass_rate = val_pass_rate if val_pass_rate is not None else test_pass_rate
                     if self.accelerator.is_main_process:
                         # record pass rates
                         self.recorder.record("test/pass_rate", curr_pass_rate, step=self.global_step)
+                        # if test_pass_rate is not None:
+                        #     self.recorder.record("test/pass_rate", curr_pass_rate, step=self.global_step)
+                        # if val_pass_rate is not None:
+                        #     self.recorder.record("val/pass_rate", val_pass_rate if self.val_dataloader is not None else -1, step=self.global_step)
                     # model saving
                     if epoch % self.saving_epoch_freq == 0:
-                        # Make sure all processes have the same pass_rate before checking
+                        # Make acceleratorsure all processes have the same pass_rate before checking
                         self.accelerator.wait_for_everyone()
                         if curr_pass_rate > best_pass_rate:
                             best_pass_rate = curr_pass_rate
@@ -189,6 +200,7 @@ class SupervisedFineTuning(BaseVLM):
             self.recorder.close()
 
     def evaluate(self, tag: str = None):
+    # def evaluate(self, tag: str = None, use_val=False):
         self.model.eval()
         # dataloader = self.val_dataloader if use_val and self.val_dataloader is not None else self.test_dataloader
 
@@ -199,6 +211,7 @@ class SupervisedFineTuning(BaseVLM):
 
         for batch in tqdm(
             self.test_dataloader, disable=not self.accelerator.is_main_process, desc="Eval Loop"
+            # dataloader, disable=not self.accelerator.is_main_process, desc="Eval Loop"
         ):
             images = batch["images"]           # list[PIL.Image] 或 tensor
             instructions = batch["instructions"]  # list[str]
