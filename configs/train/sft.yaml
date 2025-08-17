@@ -3,6 +3,7 @@ SFT:
   tokenizer_path: ../../../qwen/Qwen2.5-VL-3B-Instruct
   log_dir: ../../logs
   image_dir: ../../../data/multimodal_cot/images
+  test_image_dir: ../../../data/multimodal_cot/test_images
   num_workers: 4
   max_input_length: 2048
   max_response_length: 1024
@@ -31,8 +32,8 @@ SFT:
       evaluating_epoch_freq: 1
 
   lora:
-    r: 4
-    lora_alpha: 16
+    r: 128
+    lora_alpha: 256
     target_modules:
       - q_proj
       - k_proj

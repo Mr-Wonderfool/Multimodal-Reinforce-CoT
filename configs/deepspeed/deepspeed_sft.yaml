@@ -4,7 +4,7 @@ machine_rank: 0
 main_training_function: main
 mixed_precision: bf16
 num_machines: 1
-num_processes: 3
+num_processes: 1
 deepspeed_config:
   # train_batch_size = num_processes * train_micro_batch_size_per_gpu * gradient_accumulation_steps
   train_micro_batch_size_per_gpu: 1

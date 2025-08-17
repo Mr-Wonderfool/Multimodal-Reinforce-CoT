@@ -1,0 +1,37 @@
+compute_environment: LOCAL_MACHINE
+distributed_type: DEEPSPEED
+machine_rank: 0
+main_training_function: main
+mixed_precision: bf16
+num_machines: 1
+num_processes: 2
+deepspeed_config:
+  # train_batch_size = num_processes * train_micro_batch_size_per_gpu * gradient_accumulation_steps
+  train_micro_batch_size_per_gpu: 1
+  gradient_accumulation_steps: 1
+  gradient_clipping: 1.0
+
+  zero_optimization:
+    stage: 3
+    # Enable CPU Offload for optimizer states and params to save VRAM
+    offload_optimizer:
+      device: cpu
+      pin_memory: true
+    offload_param:
+      device: cpu
+      pin_memory: true
+
+  activation_checkpointing:
+    partition_activations: true
+    cpu_checkpointing: true
+    contiguous_memory_optimization: false
+    synchronize_checkpoint_boundary: false
+    profile: false
+
+  bf16:
+    enabled: true
+  fp16:
+    enabled: false
+
+  zero_allow_untested_optimizer: true
+  wall_clock_breakdown: false

@@ -1,4 +1,5 @@
 import os
+import re
 import json
 import torch
 from tqdm import tqdm
@@ -155,22 +156,11 @@ class SupervisedFineTuning(BaseVLM):
             for epoch in t:
                 epoch_result_dict = self._train_one_epoch()
                 curr_loss = sum(epoch_result_dict["loss"]) / len(epoch_result_dict["loss"])
-                if epoch % self.evaluating_epoch_freq == 0:
+                # 只在最后一轮进行评估
+                if epoch == self.n_epochs:  # 检查是否是最后一轮
                     curr_pass_rate = self.evaluate(tag=str(epoch))
-                    # val_pass_rate = None
-                    # test_pass_rate = None
-                    # if self.val_dataloader is not None:
-                    #     val_pass_rate = self.evaluate(tag=f"val_{epoch}", use_val=True)
-                    # if self.test_dataloader is not None:
-                    #     test_pass_rate = self.evaluate(tag=f"test_{epoch}", use_val=False)
-                    # curr_pass_rate = val_pass_rate if val_pass_rate is not None else test_pass_rate
                     if self.accelerator.is_main_process:
-                        # record pass rates
                         self.recorder.record("test/pass_rate", curr_pass_rate, step=self.global_step)
-                        # if test_pass_rate is not None:
-                        #     self.recorder.record("test/pass_rate", curr_pass_rate, step=self.global_step)
-                        # if val_pass_rate is not None:
-                        #     self.recorder.record("val/pass_rate", val_pass_rate if self.val_dataloader is not None else -1, step=self.global_step)
                     # model saving
                     if epoch % self.saving_epoch_freq == 0:
                         # Make acceleratorsure all processes have the same pass_rate before checking
@@ -211,25 +201,30 @@ class SupervisedFineTuning(BaseVLM):
 
         for batch in tqdm(
             self.test_dataloader, disable=not self.accelerator.is_main_process, desc="Eval Loop"
-            # dataloader, disable=not self.accelerator.is_main_process, desc="Eval Loop"
         ):
+            image_ids = batch.get("image_id", [None] * len(images))  # 假设 batch 可能包含 "image_id"
             images = batch["images"]           # list[PIL.Image] 或 tensor
-            instructions = batch["instructions"]  # list[str]
+            sys_prompts = batch["system_prompt"]
+            user_prompts = batch["user_prompt"]  # list[str]
             answers = batch["answers"]             # list[str]
-            messages_batch = [
-                {
-                    "role": "user",
-                    "content": [
-                        {"type": "image", "image": img},
-                        {"type": "text", "text": instr}
-                    ]
-                }
-                for img, instr in zip(images, instructions)
-            ]
+
+            messages_batch = []
+            for img, instr, sp in zip(images, user_prompts, sys_prompts):
+                messages_batch.append([
+                {"role": "system", "content": sp},
+                {"role": "user",
+                 "content": [
+                    {"type": "image", "image": img},
+                    {"type": "text", "text": instr},
+                ]},
+            ])
 
 
             # 用processor得到输入
-            text_batch = [self.processor.apply_chat_template([msg], tokenize=False, add_generation_prompt=True) for msg in messages_batch]
+            text_batch = [
+                self.processor.apply_chat_template(msg, tokenize=False, add_generation_prompt=True)
+                for msg in messages_batch
+            ]
             model_inputs = self.processor(
                 text=text_batch,
                 images=images,
@@ -240,31 +235,81 @@ class SupervisedFineTuning(BaseVLM):
             )
             model_inputs = {k: v.to(self.accelerator.device) for k, v in model_inputs.items()}
 
+            bad_words_ids = self.processor.tokenizer(["<tool_call>"], add_special_tokens=False).input_ids
+
             with torch.no_grad():
-                output_ids = self.model.generate(
+                unwrapped_model = self.accelerator.unwrap_model(self.model)
+                output_ids = unwrapped_model.generate(
                     **model_inputs,
                     max_new_tokens=self.max_response_length,
                     pad_token_id=self.processor.tokenizer.pad_token_id,
                     eos_token_id=self.processor.tokenizer.eos_token_id,
+                    bad_words_ids=bad_words_ids
                 )
-            # 解码输出
-            output_texts = self.processor.batch_decode(output_ids, skip_special_tokens=True, clean_up_tokenization_spaces=True)
+    
+            # 只取生成段
+            gen_only = output_ids[:, model_inputs["input_ids"].shape[1]:]
+            output_texts = self.processor.batch_decode(
+                gen_only, skip_special_tokens=True, clean_up_tokenization_spaces=True
+            )
 
-            # 逐条判分（字符串比较，可按实际需要自定义）
-            for i, (gt_ans, pred_text, instr) in enumerate(zip(answers, output_texts, instructions)):
-                gt_ans_clean = gt_ans.strip().lower()
-                pred_clean = pred_text.strip().lower()
+            def extract_answer_and_think(text: str):
+                m_t = re.search(r"<think>\s*(.*?)\s*</think>", text, flags=re.S|re.I)
+                # 改进的 <answer> 提取逻辑
+                m_a = re.search(r"<answer>(.*?)(?:</answer>|$)", text, flags=re.S|re.I)
+                pred_answer = m_a.group(1).strip() if m_a else ""
+                pred_think = m_t.group(1).strip() if m_t else ""
+                return pred_think, pred_answer
 
-                # 简单包含式判分，也可做模糊匹配或后处理
-                is_correct = int(gt_ans_clean in pred_clean)
+
+            def norm(s: str):
+                return re.sub(r"\s+", " ", s.strip().lower())
+            
+            def is_answer_match(pred_answer: str, gt_answer: str) -> bool:
+                """检查预测答案是否包含真实答案的关键词（不区分大小写）"""
+                # 标准化：转小写 + 去除标点
+                pred_clean = re.sub(r'[^\w\s]', '', pred_answer.lower())
+                gt_clean = re.sub(r'[^\w\s]', '', gt_answer.lower())
+                    # 近义词映射表（可根据需求扩展）
+                synonyms = {
+                    # 否定类
+                    "no": {"no", "not", "false", "nope", "negative"},
+                    # 肯定类
+                    "yes": {"yes", "true", "correct", "yep", "positive"},
+                    # 方向类（示例）
+                    "left": {"left", "west"},
+                    "right": {"right", "east"},
+                    # 颜色类（示例）
+                    "red": {"red", "crimson"},
+                }
+
+                # 检查直接匹配
+                if gt_clean == pred_clean:
+                    return True
+
+    # 检查近义词匹配（包括反向映射）
+    for word in {gt_clean, pred_clean}:
+        if word in synonyms:
+            if gt_clean in synonyms[word] and pred_clean in synonyms[word]:
+                return True
+    
+                # 检查 gt_clean 是否在 pred_clean 中（作为单词）
+                return gt_clean in pred_clean.split()  # 按空格分词后匹配
+
+            for img_id,gt_ans, pred_text, instr in zip(image_ids,answers, output_texts, user_prompts):
+                pred_think, pred_ans = extract_answer_and_think(pred_text)
+                is_correct = int(is_answer_match(pred_ans, gt_ans))  # 使用新逻辑
+
                 total_correct += is_correct
                 total_count += 1
 
-                # log样本
                 local_log_samples.append({
+                    "image_id": img_id,
                     "instruction": instr,
                     "gt_answer": gt_ans,
-                    "prediction": pred_text,
+                    "prediction_raw": pred_text,   # 原始整段生成
+                    "pred_think": pred_think,      # 抽取的思维链
+                    "pred_answer": pred_ans,       # 抽取的答案
                     "is_correct": is_correct
                 })
 

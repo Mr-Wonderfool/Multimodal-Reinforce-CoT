@@ -1,0 +1,794 @@
+[
+  {
+    "instruction": "\n### Question:\nPlease answer based on the image content: Is the man on the right or on the left side of the image?",
+    "gt_answer": "Left",
+    "prediction_raw": "<think>\n1. The image shows two men standing next to each other.\n2. The man on the left is wearing a blue and orange shirt, while the man on the right is wearing a blue and white uniform.\n3. The man on the left appears to be older and has gray hair.\n4. The man on the right is younger and has darker hair.\n5. Based on their positions relative to each other, the man on the left is positioned closer to the foreground, while the man on the right is positioned further back.\n6. Therefore, the man on the left is on the left side of the image.\n</think>\n<answer>\nThe man on the left is on the left side of the image.",
+    "pred_think": "1. The image shows two men standing next to each other.\n2. The man on the left is wearing a blue and orange shirt, while the man on the right is wearing a blue and white uniform.\n3. The man on the left appears to be older and has gray hair.\n4. The man on the right is younger and has darker hair.\n5. Based on their positions relative to each other, the man on the left is positioned closer to the foreground, while the man on the right is positioned further back.\n6. Therefore, the man on the left is on the left side of the image.",
+    "pred_answer": "",
+    "is_correct": 0
+  },
+  {
+    "instruction": "\n### Question:\nPlease answer based on the image content: What is the wood item of furniture in the picture?",
+    "gt_answer": "Bed",
+    "prediction_raw": "<think>\nThe image shows a bed with a wooden headboard. The headboard is visible at the top left corner of the bed, indicating that it is made of wood.\n</think>\n<answer>\nThe wood item of furniture in the picture is the headboard of the bed.",
+    "pred_think": "The image shows a bed with a wooden headboard. The headboard is visible at the top left corner of the bed, indicating that it is made of wood.",
+    "pred_answer": "",
+    "is_correct": 0
+  },
+  {
+    "instruction": "\n### Question:\nPlease answer based on the image content: Is it an outdoors scene?",
+    "gt_answer": "No",
+    "prediction_raw": "<think>\nThe image shows an indoor setting with furniture, artwork, and plants. There is no indication of natural elements such as trees, grass, or sky that would suggest an outdoor scene. The presence of indoor furniture and decor further supports that this is not an outdoor scene.\n</think>\n<answer>\nNo, it is not an outdoors scene.",
+    "pred_think": "The image shows an indoor setting with furniture, artwork, and plants. There is no indication of natural elements such as trees, grass, or sky that would suggest an outdoor scene. The presence of indoor furniture and decor further supports that this is not an outdoor scene.",
+    "pred_answer": "",
+    "is_correct": 0
+  },
+  {
+    "instruction": "\n### Question:\nPlease answer based on the image content: Is the cup round and black?",
+    "gt_answer": "No",
+    "prediction_raw": "<think>\nTo determine if the cup is round and black, I need to examine the shape and color of the cup in the image. The cup appears to be white, not black. Additionally, the cup has a rounded shape, which is consistent with common coffee mugs. Therefore, the cup is not black.\n</think>\n<answer>\nNo, the cup is not round and black. It is white and has a rounded shape.",
+    "pred_think": "To determine if the cup is round and black, I need to examine the shape and color of the cup in the image. The cup appears to be white, not black. Additionally, the cup has a rounded shape, which is consistent with common coffee mugs. Therefore, the cup is not black.",
+    "pred_answer": "",
+    "is_correct": 0
+  },
+  {
+    "instruction": "\n### Question:\nPlease answer based on the image content: What is the device to the left of the doll called?",
+    "gt_answer": "Television",
+    "prediction_raw": "<think>\n1. The image shows a living room setting.\n2. There is a television set in the center of the room.\n3. To the left of the television, there is a small table.\n4. On top of the table, there is a lamp.\n5. The lamp has a white base and a white lampshade.\n6. Therefore, the device to the left of the doll (which is not present in the image) is the lamp.\n</think>\n<answer>\nThe device to the left of the doll is the lamp.",
+    "pred_think": "1. The image shows a living room setting.\n2. There is a television set in the center of the room.\n3. To the left of the television, there is a small table.\n4. On top of the table, there is a lamp.\n5. The lamp has a white base and a white lampshade.\n6. Therefore, the device to the left of the doll (which is not present in the image) is the lamp.",
+    "pred_answer": "",
+    "is_correct": 0
+  },
+  {
+    "instruction": "\n### Question:\nPlease answer based on the image content: Is the oven on the right?",
+    "gt_answer": "Yes",
+    "prediction_raw": "<think>\n1. The question asks if the oven is on the right side of the kitchen.\n2. In the image, the oven is located towards the right side of the kitchen.\n3. The oven is positioned between the stove and the microwave.\n4. The stove is also on the right side of the kitchen.\n5. Therefore, the oven is indeed on the right side of the kitchen.\n</think>\n<answer>\nYes, the oven is on the right side of the kitchen.",
+    "pred_think": "1. The question asks if the oven is on the right side of the kitchen.\n2. In the image, the oven is located towards the right side of the kitchen.\n3. The oven is positioned between the stove and the microwave.\n4. The stove is also on the right side of the kitchen.\n5. Therefore, the oven is indeed on the right side of the kitchen.",
+    "pred_answer": "",
+    "is_correct": 0
+  },
+  {
+    "instruction": "\n### Question:\nPlease answer based on the image content: Is the silver drawer in the top or in the bottom part of the photo?",
+    "gt_answer": "Bottom",
+    "prediction_raw": "<think>\nTo determine whether the silver drawer is in the top or bottom part of the photo, I need to identify the location of the drawer. The question asks specifically about the position of the silver drawer, which is likely referring to the lower drawer in the kitchen cabinet. Therefore, the silver drawer should be located at the bottom part of the photo.\n</think>\n<answer>\nThe silver drawer is in the bottom part of the photo.",
+    "pred_think": "To determine whether the silver drawer is in the top or bottom part of the photo, I need to identify the location of the drawer. The question asks specifically about the position of the silver drawer, which is likely referring to the lower drawer in the kitchen cabinet. Therefore, the silver drawer should be located at the bottom part of the photo.",
+    "pred_answer": "",
+    "is_correct": 0
+  },
+  {
+    "instruction": "\n### Question:\nPlease answer based on the image content: Which kind of furniture is wooden?",
+    "gt_answer": "Bed",
+    "prediction_raw": "<think>\nThe image shows a bed with a wooden headboard. The headboard is visible at the top left corner of the bed, indicating that it is made of wood.\n</think>\n<answer>\nThe wooden furniture in the image is the headboard of the bed.",
+    "pred_think": "The image shows a bed with a wooden headboard. The headboard is visible at the top left corner of the bed, indicating that it is made of wood.",
+    "pred_answer": "",
+    "is_correct": 0
+  },
+  {
+    "instruction": "\n### Question:\nPlease answer based on the image content: On which side is the white cup?",
+    "gt_answer": "Left",
+    "prediction_raw": "<think>\n1. The image shows a cat drinking from a white cup.\n2. The cup is positioned on a wooden surface.\n3. The cat is leaning over the cup, indicating that the cup is in front of the cat.\n4. Therefore, the white cup is on the left side of the image relative to the cat's position.\n</think>\n<answer>\nThe white cup is on the left side of the image.",
+    "pred_think": "1. The image shows a cat drinking from a white cup.\n2. The cup is positioned on a wooden surface.\n3. The cat is leaning over the cup, indicating that the cup is in front of the cat.\n4. Therefore, the white cup is on the left side of the image relative to the cat's position.",
+    "pred_answer": "",
+    "is_correct": 0
+  },
+  {
+    "instruction": "\n### Question:\nPlease answer based on the image content: In which part is the drawer?",
+    "gt_answer": "Left",
+    "prediction_raw": "<think>\n1. The image shows a desk setup with various items on it.\n2. There is a drawer visible in the image.\n3. The drawer is located at the bottom left corner of the desk.\n4. It appears to be made of wood and has a simple design.\n5. The drawer is closed and positioned vertically.\n6. The desk surface is light-colored, possibly wooden, and there are other items on top of it.\n7. The focus of the image is on the desk and the items on it, not on the drawers themselves.\n8. Therefore, the drawer is located at the bottom left corner of the desk.\n</think>\n<answer>\nThe drawer is located at the bottom left corner of the desk.",
+    "pred_think": "1. The image shows a desk setup with various items on it.\n2. There is a drawer visible in the image.\n3. The drawer is located at the bottom left corner of the desk.\n4. It appears to be made of wood and has a simple design.\n5. The drawer is closed and positioned vertically.\n6. The desk surface is light-colored, possibly wooden, and there are other items on top of it.\n7. The focus of the image is on the desk and the items on it, not on the drawers themselves.\n8. Therefore, the drawer is located at the bottom left corner of the desk.",
+    "pred_answer": "",
+    "is_correct": 0
+  },
+  {
+    "instruction": "\n### Question:\nPlease answer based on the image content: What device is to the left of the cell phone?",
+    "gt_answer": "Laptop",
+    "prediction_raw": "<think>\nThe question asks for the device to the left of the cell phone. In the image, there is a laptop computer placed on a desk. The cell phone is located to the right of the laptop. Therefore, the device to the left of the cell phone is the laptop.\n</think>\n<answer>\nThe device to the left of the cell phone is the laptop.",
+    "pred_think": "The question asks for the device to the left of the cell phone. In the image, there is a laptop computer placed on a desk. The cell phone is located to the right of the laptop. Therefore, the device to the left of the cell phone is the laptop.",
+    "pred_answer": "",
+    "is_correct": 0
+  },
+  {
+    "instruction": "\n### Question:\nPlease answer based on the image content: Are the people that are to the right of the man wearing a helmet?",
+    "gt_answer": "Yes",
+    "prediction_raw": "<think>\n1. The image shows four individuals skiing.\n2. The person to the right of the man is wearing a helmet.\n3. The individual's helmet is clearly visible and appears to be properly positioned on their head.\n</think>\n<answer>\nYes, the people that are to the right of the man are wearing a helmet.",
+    "pred_think": "1. The image shows four individuals skiing.\n2. The person to the right of the man is wearing a helmet.\n3. The individual's helmet is clearly visible and appears to be properly positioned on their head.",
+    "pred_answer": "",
+    "is_correct": 0
+  },
+  {
+    "instruction": "\n### Question:\nPlease answer based on the image content: Is the beef in the top or in the bottom part?",
+    "gt_answer": "Bottom",
+    "prediction_raw": "<think>\nThe image shows a hot dog with a beef patty placed on top of a bun. The beef is positioned at the bottom part of the hot dog, directly beneath the bun.\n</think>\n<answer>\nThe beef is in the bottom part of the hot dog.",
+    "pred_think": "The image shows a hot dog with a beef patty placed on top of a bun. The beef is positioned at the bottom part of the hot dog, directly beneath the bun.",
+    "pred_answer": "",
+    "is_correct": 0
+  },
+  {
+    "instruction": "\n### Question:\nPlease answer based on the image content: Is the girl to the left or to the right of the green bag?",
+    "gt_answer": "Right",
+    "prediction_raw": "<think>\n1. The image shows a man holding a hot dog.\n2. There is a girl standing behind him.\n3. The girl is wearing a blue dress.\n4. The green bag is located to the left of the man.\n5. Therefore, the girl is to the right of the green bag.\n</think>\n<answer>\nThe girl is to the right of the green bag.",
+    "pred_think": "1. The image shows a man holding a hot dog.\n2. There is a girl standing behind him.\n3. The girl is wearing a blue dress.\n4. The green bag is located to the left of the man.\n5. Therefore, the girl is to the right of the green bag.",
+    "pred_answer": "",
+    "is_correct": 0
+  },
+  {
+    "instruction": "\n### Question:\nPlease answer based on the image content: What device is to the right of the box?",
+    "gt_answer": "Laptop",
+    "prediction_raw": "<think>\n1. The image shows a desk setup.\n2. On the left side of the desk, there is a box.\n3. To the right of the box, there is a laptop.\n4. The laptop has a screen displaying a photo of a person.\n5. Therefore, the device to the right of the box is the laptop.\n</think>\n<answer>\nThe device to the right of the box is the laptop.",
+    "pred_think": "1. The image shows a desk setup.\n2. On the left side of the desk, there is a box.\n3. To the right of the box, there is a laptop.\n4. The laptop has a screen displaying a photo of a person.\n5. Therefore, the device to the right of the box is the laptop.",
+    "pred_answer": "",
+    "is_correct": 0
+  },
+  {
+    "instruction": "\n### Question:\nPlease answer based on the image content: Is the door made of metal or wood?",
+    "gt_answer": "Wood",
+    "prediction_raw": "<think>\nTo determine if the door is made of metal or wood, I need to examine the texture and appearance of the door. The door has a smooth surface without visible grain patterns that would typically be associated with wood. Additionally, there are no signs of rivets, hinges, or other metal components that would indicate a metal door. Therefore, based on the visual cues, the door appears to be made of wood.\n</think>\n<answer>\nThe door is made of wood.",
+    "pred_think": "To determine if the door is made of metal or wood, I need to examine the texture and appearance of the door. The door has a smooth surface without visible grain patterns that would typically be associated with wood. Additionally, there are no signs of rivets, hinges, or other metal components that would indicate a metal door. Therefore, based on the visual cues, the door appears to be made of wood.",
+    "pred_answer": "",
+    "is_correct": 0
+  },
+  {
+    "instruction": "\n### Question:\nPlease answer based on the image content: Which side is the fork on?",
+    "gt_answer": "Left",
+    "prediction_raw": "<think>\nThe fork is placed on the left side of the table. It is positioned near the edge of the image, indicating that it is on the left side of the table.\n</think>\n<answer>\nThe fork is on the left side of the table.",
+    "pred_think": "The fork is placed on the left side of the table. It is positioned near the edge of the image, indicating that it is on the left side of the table.",
+    "pred_answer": "",
+    "is_correct": 0
+  },
+  {
+    "instruction": "\n### Question:\nPlease answer based on the image content: Is the silver car to the right or to the left of the traffic cone?",
+    "gt_answer": "Left",
+    "prediction_raw": "<think>\n1. The question asks about the position of the silver car relative to the traffic cone.\n2. The traffic cones are positioned along the road, with some closer to the foreground and others further back.\n3. The silver car is visible in the middle of the image, between the traffic cones.\n4. Since the traffic cones are scattered around the road, the silver car would be located between them.\n5. Therefore, the silver car is not to the left or right of any specific traffic cone; it is situated among them.\n</think>\n<answer>\nThe silver car is not to the left or right of any specific traffic cone; it is situated among them.\n</answer>",
+    "pred_think": "1. The question asks about the position of the silver car relative to the traffic cone.\n2. The traffic cones are positioned along the road, with some closer to the foreground and others further back.\n3. The silver car is visible in the middle of the image, between the traffic cones.\n4. Since the traffic cones are scattered around the road, the silver car would be located between them.\n5. Therefore, the silver car is not to the left or right of any specific traffic cone; it is situated among them.",
+    "pred_answer": "The silver car is not to the left or right of any specific traffic cone; it is situated among them.",
+    "is_correct": 0
+  },
+  {
+    "instruction": "\n### Question:\nPlease answer based on the image content: On which side is the magazine?",
+    "gt_answer": "Left",
+    "prediction_raw": "<think>\nThe magazine is placed on the left side of the image, near the bottom corner. It is positioned on top of a small table that is situated between two chairs.\n</think>\n<answer>\nThe magazine is on the left side of the image.",
+    "pred_think": "The magazine is placed on the left side of the image, near the bottom corner. It is positioned on top of a small table that is situated between two chairs.",
+    "pred_answer": "",
+    "is_correct": 0
+  },
+  {
+    "instruction": "\n### Question:\nPlease answer based on the image content: Is the wood box to the right of a laptop?",
+    "gt_answer": "No",
+    "prediction_raw": "<think>\nLet's analyze the positions of the objects mentioned in the question:\n\n1. The wood box is described as being \"to the left\" of the laptop.\n2. The laptop is positioned on the desk, which is directly below the window.\n3. The desk also has a mouse pad with a mouse on it, which is to the left of the laptop.\n\nBased on this analysis, the wood box is not to the right of the laptop; it is to the left of the laptop.\n</think>\n<answer>\nNo, the wood box is not to the right of the laptop. It is to the left of the laptop.",
+    "pred_think": "Let's analyze the positions of the objects mentioned in the question:\n\n1. The wood box is described as being \"to the left\" of the laptop.\n2. The laptop is positioned on the desk, which is directly below the window.\n3. The desk also has a mouse pad with a mouse on it, which is to the left of the laptop.\n\nBased on this analysis, the wood box is not to the right of the laptop; it is to the left of the laptop.",
+    "pred_answer": "",
+    "is_correct": 0
+  },
+  {
+    "instruction": "\n### Question:\nPlease answer based on the image content: What type of clothing is green?",
+    "gt_answer": "Jacket",
+    "prediction_raw": "<think>\nThe man in the image is wearing a green jacket. This can be determined by observing his upper body where the jacket covers most of his torso. The jacket appears to be made of a thick material suitable for cold weather conditions, which aligns with the snowy environment depicted in the image.\n</think>\n<answer>\nThe green clothing is a jacket.",
+    "pred_think": "The man in the image is wearing a green jacket. This can be determined by observing his upper body where the jacket covers most of his torso. The jacket appears to be made of a thick material suitable for cold weather conditions, which aligns with the snowy environment depicted in the image.",
+    "pred_answer": "",
+    "is_correct": 0
+  },
+  {
+    "instruction": "\n### Question:\nPlease answer based on the image content: Is the appliance near the cabinet silver or red?",
+    "gt_answer": "Silver",
+    "prediction_raw": "<think>\nTo determine if the appliance near the cabinet is silver or red, I need to identify the appliance and its color. The appliance in question is likely the oven, which is located below the microwave. The oven appears to be silver in color, as it matches the typical color of stainless steel appliances.\n</think>\n<answer>\nThe appliance near the cabinet is silver.",
+    "pred_think": "To determine if the appliance near the cabinet is silver or red, I need to identify the appliance and its color. The appliance in question is likely the oven, which is located below the microwave. The oven appears to be silver in color, as it matches the typical color of stainless steel appliances.",
+    "pred_answer": "",
+    "is_correct": 0
+  },
+  {
+    "instruction": "\n### Question:\nPlease answer based on the image content: Do you see any girls to the left of the yellow bag?",
+    "gt_answer": "Yes",
+    "prediction_raw": "<think>\n1. The image shows two young girls standing side by side.\n2. The girl on the left is holding a red and blue umbrella.\n3. The girl on the right is wearing a white dress and carrying a yellow backpack.\n4. The girl on the left is positioned closer to the foreground.\n5. The girl on the right is slightly behind the girl on the left.\n6. Both girls are standing on a sidewalk.\n7. There is no indication that the girl on the right is to the left of the yellow bag.\n8. The yellow bag is not visible in the image.\n9. Therefore, it is not possible to determine if the girl on the right is to the left of the yellow bag based on the given information.\n</think>\n<answer>\nNo, I do not see any girls to the left of the yellow bag.",
+    "pred_think": "1. The image shows two young girls standing side by side.\n2. The girl on the left is holding a red and blue umbrella.\n3. The girl on the right is wearing a white dress and carrying a yellow backpack.\n4. The girl on the left is positioned closer to the foreground.\n5. The girl on the right is slightly behind the girl on the left.\n6. Both girls are standing on a sidewalk.\n7. There is no indication that the girl on the right is to the left of the yellow bag.\n8. The yellow bag is not visible in the image.\n9. Therefore, it is not possible to determine if the girl on the right is to the left of the yellow bag based on the given information.",
+    "pred_answer": "",
+    "is_correct": 0
+  },
+  {
+    "instruction": "\n### Question:\nPlease answer based on the image content: Are there either chickens or fences in the picture?",
+    "gt_answer": "No",
+    "prediction_raw": "<think>\nLet's analyze the image step by step:\n\n1. **Identify the main elements**: The image shows a room with a motorcycle parked near a window. There is also a large piece of furniture that appears to be a bed or a sofa.\n\n2. **Check for chickens**: \n   - The image does not contain any chickens. Chickens are birds, and they do not appear in the image at all.\n\n3. **Check for fences**:\n   - There are no fences visible in the image. Fences are typically made of wood or metal and would be noticeable in the background or surrounding area.\n\n4. **Conclusion**: Based on the analysis, there are neither chickens nor fences in the image.\n\n</think>\n<answer>\nNo, there are neither chickens nor fences in the picture.\n</answer>",
+    "pred_think": "Let's analyze the image step by step:\n\n1. **Identify the main elements**: The image shows a room with a motorcycle parked near a window. There is also a large piece of furniture that appears to be a bed or a sofa.\n\n2. **Check for chickens**: \n   - The image does not contain any chickens. Chickens are birds, and they do not appear in the image at all.\n\n3. **Check for fences**:\n   - There are no fences visible in the image. Fences are typically made of wood or metal and would be noticeable in the background or surrounding area.\n\n4. **Conclusion**: Based on the analysis, there are neither chickens nor fences in the image.",
+    "pred_answer": "No, there are neither chickens nor fences in the picture.",
+    "is_correct": 0
+  },
+  {
+    "instruction": "\n### Question:\nPlease answer based on the image content: Is the sofa to the right of the planter light brown or blue?",
+    "gt_answer": "Blue",
+    "prediction_raw": "<think>\n1. The image shows a room with various furniture pieces.\n2. There is a sofa visible in the image.\n3. The sofa appears to be upholstered with a patterned fabric.\n4. The color of the upholstery is not specified as either light brown or blue.\n5. Therefore, I cannot determine if the sofa is light brown or blue based solely on the image description.\n</think>\n<answer>\nThe color of the sofa cannot be determined from the image description.",
+    "pred_think": "1. The image shows a room with various furniture pieces.\n2. There is a sofa visible in the image.\n3. The sofa appears to be upholstered with a patterned fabric.\n4. The color of the upholstery is not specified as either light brown or blue.\n5. Therefore, I cannot determine if the sofa is light brown or blue based solely on the image description.",
+    "pred_answer": "",
+    "is_correct": 0
+  },
+  {
+    "instruction": "\n### Question:\nPlease answer based on the image content: Is the green bag to the right or to the left of the girl that is wearing a helmet?",
+    "gt_answer": "Left",
+    "prediction_raw": "<think>\n1. The question asks about the position of the green bag relative to the girl wearing a helmet.\n2. In the image, the green bag is located to the left of the girl wearing a helmet.\n3. Therefore, the green bag is to the left of the girl wearing a helmet.\n</think>\n<answer>\nThe green bag is to the left of the girl wearing a helmet.",
+    "pred_think": "1. The question asks about the position of the green bag relative to the girl wearing a helmet.\n2. In the image, the green bag is located to the left of the girl wearing a helmet.\n3. Therefore, the green bag is to the left of the girl wearing a helmet.",
+    "pred_answer": "",
+    "is_correct": 0
+  },
+  {
+    "instruction": "\n### Question:\nPlease answer based on the image content: Are there vehicles to the left of the man?",
+    "gt_answer": "No",
+    "prediction_raw": "<think>\nThe question asks if there are vehicles to the left of the man. In the image, I can see that the man is standing on a snowy slope. To his left, there is a snowboard lying on the ground. There is no vehicle visible next to him. Therefore, the answer is no, there are no vehicles to the left of the man.\n</think>\n<answer>\nNo, there are no vehicles to the left of the man.",
+    "pred_think": "The question asks if there are vehicles to the left of the man. In the image, I can see that the man is standing on a snowy slope. To his left, there is a snowboard lying on the ground. There is no vehicle visible next to him. Therefore, the answer is no, there are no vehicles to the left of the man.",
+    "pred_answer": "",
+    "is_correct": 0
+  },
+  {
+    "instruction": "\n### Question:\nPlease answer based on the image content: Which kind of clothing is green?",
+    "gt_answer": "Jacket",
+    "prediction_raw": "<think>\n1. The image shows a person wearing a green jacket.\n2. The green jacket is visible on the right side of the image.\n3. There are no other green clothing items present in the image.\n4. Therefore, the green clothing in the image is a green jacket.\n</think>\n<answer>\nThe green clothing in the image is a green jacket.",
+    "pred_think": "1. The image shows a person wearing a green jacket.\n2. The green jacket is visible on the right side of the image.\n3. There are no other green clothing items present in the image.\n4. Therefore, the green clothing in the image is a green jacket.",
+    "pred_answer": "",
+    "is_correct": 0
+  },
+  {
+    "instruction": "\n### Question:\nPlease answer based on the image content: Does the coffee maker have a different color than the drawer?",
+    "gt_answer": "No",
+    "prediction_raw": "<think>\nTo determine if the coffee maker has a different color than the drawer, I need to identify the colors of both items. The coffee maker is white, as indicated by its color. The drawer also appears to be white, matching the coffee maker's color. Therefore, the coffee maker does not have a different color than the drawer.\n</think>\n<answer>\nNo, the coffee maker does not have a different color than the drawer. Both are white.",
+    "pred_think": "To determine if the coffee maker has a different color than the drawer, I need to identify the colors of both items. The coffee maker is white, as indicated by its color. The drawer also appears to be white, matching the coffee maker's color. Therefore, the coffee maker does not have a different color than the drawer.",
+    "pred_answer": "",
+    "is_correct": 0
+  },
+  {
+    "instruction": "\n### Question:\nPlease answer based on the image content: Are there both windows and doors?",
+    "gt_answer": "Yes",
+    "prediction_raw": "<think>\nLet's analyze the image step by step:\n\n1. **Identify Windows**: There is one window visible in the image. It is located on the left side of the room near the ceiling.\n\n2. **Identify Doors**: There are two doors in the image. One door is located directly opposite the window, and another door is situated further back in the room.\n\n3. **Conclusion**: Since there is one window and two doors, the statement \"Are there both windows and doors?\" is true because it includes both types of objects present in the image.\n\n</think>\n<answer>\nYes, there are both windows and doors in the image.",
+    "pred_think": "Let's analyze the image step by step:\n\n1. **Identify Windows**: There is one window visible in the image. It is located on the left side of the room near the ceiling.\n\n2. **Identify Doors**: There are two doors in the image. One door is located directly opposite the window, and another door is situated further back in the room.\n\n3. **Conclusion**: Since there is one window and two doors, the statement \"Are there both windows and doors?\" is true because it includes both types of objects present in the image.",
+    "pred_answer": "",
+    "is_correct": 0
+  },
+  {
+    "instruction": "\n### Question:\nPlease answer based on the image content: What color is the knee pad the man is wearing?",
+    "gt_answer": "Black",
+    "prediction_raw": "<think>\n1. The image shows a man skateboarding at a skate park.\n2. The man is wearing knee pads for protection.\n3. The knee pads appear to be black in color.\n4. There are no other colors mentioned for the knee pads.\n5. Therefore, the knee pads are black.\n</think>\n<answer>\nThe knee pad the man is wearing is black.",
+    "pred_think": "1. The image shows a man skateboarding at a skate park.\n2. The man is wearing knee pads for protection.\n3. The knee pads appear to be black in color.\n4. There are no other colors mentioned for the knee pads.\n5. Therefore, the knee pads are black.",
+    "pred_answer": "",
+    "is_correct": 0
+  },
+  {
+    "instruction": "\n### Question:\nPlease answer based on the image content: What place is pictured?",
+    "gt_answer": "Swimming pool",
+    "prediction_raw": "<think>\nThe image shows a swimming pool with several people in the water, a basketball hoop, and benches around the pool area. The presence of a basketball hoop suggests that this is likely a recreational area where people can swim, play sports, and socialize. The setting appears to be outdoors, possibly in a park or community center, given the greenery and trees visible in the background.\n</think>\n<answer>\nThe image is of a swimming pool located in a park or community center. \n</answer>",
+    "pred_think": "The image shows a swimming pool with several people in the water, a basketball hoop, and benches around the pool area. The presence of a basketball hoop suggests that this is likely a recreational area where people can swim, play sports, and socialize. The setting appears to be outdoors, possibly in a park or community center, given the greenery and trees visible in the background.",
+    "pred_answer": "The image is of a swimming pool located in a park or community center.",
+    "is_correct": 0
+  },
+  {
+    "instruction": "\n### Question:\nPlease answer based on the image content: What kind of furniture is to the left of the appliance the oven is below?",
+    "gt_answer": "Cabinets",
+    "prediction_raw": "<think>\n1. The image shows a kitchen setting.\n2. There is a microwave oven placed above the stove.\n3. To the left of the microwave, there is a window.\n4. Below the window, there is a countertop with a dishwasher.\n5. The cabinets are made of wood and are positioned above the countertop.\n6. The countertop has a cutting board on it.\n7. The cabinets are part of the kitchen cabinetry system.\n8. The appliances (microwave and dishwasher) are integrated into the cabinetry.\n9. The cabinets are likely used for storage purposes.\n10. The cutting board is used for food preparation.\n11. The window provides natural light to the kitchen.\n12. The dishwasher is a kitchen appliance for washing dishes.\n13. The microwave is a kitchen appliance for cooking and reheating food.\n14. The cabinets are essential for organizing kitchen items.\n15. The countertop is where food preparation takes place.\n16. The window allows for ventilation and natural light.\n17. The cabinets are made of wood, which is common in many kitchens.\n18. The cabinets are positioned above the countertop, providing additional storage space.\n19. The microwave is placed above the stove, indicating that the stove is below the microwave.\n20. The dishwasher is placed below the countertop, making it accessible from the countertop.\n21. The cabinets are part of the kitchen cabinetry system, which includes other cabinets not visible in the image.\n22. The cabinets are likely made of wood, which is a common material for kitchen cabinetry.\n23. The cabinets are positioned above the countertop, providing additional storage space.\n24. The cabinets are part of the kitchen cabinetry system, which includes other cabinets not visible in the image.\n25. The cabinets are likely made of wood, which is a common material for kitchen cabinetry.\n26. The cabinets are positioned above the countertop, providing additional storage space.\n27. The cabinets are part of the kitchen cabinetry system, which includes other cabinets not visible in the image.\n28. The cabinets are likely made of wood, which is a common material for kitchen cabinetry.\n29. The cabinets are positioned above the countertop, providing additional storage space.\n30. The cabinets are part of the kitchen cabinetry system, which includes other cabinets not visible in the image.\n31. The cabinets are likely made of wood, which is a common material for kitchen cabinetry.\n32. The cabinets are positioned above the countertop, providing additional storage space.\n33. The cabinets are part of the kitchen cabinetry system, which includes other cabinets not visible in the image.\n34. The cabinets are likely made of wood, which is a common material for kitchen cabinetry.\n35. The cabinets are positioned above the countertop, providing additional storage space.\n36. The cabinets are part of the kitchen cabinetry system, which includes other cabinets not visible in the image.\n37. The cabinets are likely made of wood, which is a common material for kitchen cabinetry.\n38. The cabinets are positioned above the countertop, providing additional storage space.\n39. The cabinets are part of the kitchen cabinetry system, which includes other cabinets not visible in the image.\n40. The cabinets are likely made of wood, which is a common material for kitchen cabinetry.\n41. The cabinets are positioned above the countertop, providing additional storage space.\n42. The cabinets are part of the kitchen cabinetry system, which includes other cabinets not visible in the image.\n43. The cabinets are likely made of wood, which is a common material for kitchen cabinetry.\n44. The cabinets are positioned above the countertop, providing additional storage space.\n45. The cabinets are part of the kitchen cabinetry system, which includes other cabinets not visible in the image.\n46. The cabinets are likely made of wood, which is a common material for kitchen cabinetry.\n47. The cabinets are positioned above the countertop, providing additional storage space.\n48. The cabinets are part of the kitchen cabinetry system, which includes other cabinets not visible in the image.\n49. The cabinets are likely made of wood, which is a common material for kitchen cabinetry.\n50. The cabinets are positioned above the countertop, providing additional storage space.\n51. The cabinets are part of the kitchen cabinetry system, which includes other cabinets not visible in the image.\n52. The cabinets are likely made of wood, which is a common material for kitchen cabinetry.\n53. The cabinets are positioned above the countertop, providing additional storage space.\n54. The cabinets are part of the kitchen cabinetry system, which includes other cabinets not visible in the image.\n55. The cabinets are likely made of wood, which is a common material for kitchen cabinetry.\n56. The cabinets are positioned above the countertop",
+    "pred_think": "",
+    "pred_answer": "",
+    "is_correct": 0
+  },
+  {
+    "instruction": "\n### Question:\nPlease answer based on the image content: Is the man to the left of the food holding a cell phone?",
+    "gt_answer": "No",
+    "prediction_raw": "<think>\n1. The image shows a man sitting at a table with a bowl of food in front of him.\n2. The man is wearing a dark blue t-shirt with the word \"BURNING\" printed on it.\n3. There is no visible cell phone in the image.\n4. The focus is on the man and his meal, not on any electronic devices.\n5. Therefore, it is not possible to determine if he is holding a cell phone based on the given information.\n</think>\n<answer>\nNo, the man to the left of the food is not holding a cell phone.",
+    "pred_think": "1. The image shows a man sitting at a table with a bowl of food in front of him.\n2. The man is wearing a dark blue t-shirt with the word \"BURNING\" printed on it.\n3. There is no visible cell phone in the image.\n4. The focus is on the man and his meal, not on any electronic devices.\n5. Therefore, it is not possible to determine if he is holding a cell phone based on the given information.",
+    "pred_answer": "",
+    "is_correct": 0
+  },
+  {
+    "instruction": "\n### Question:\nPlease answer based on the image content: What is the color of the door in front of the building?",
+    "gt_answer": "Dark",
+    "prediction_raw": "<think>\nThe image is described as black and white, which means there are no colors present. Therefore, we cannot determine the color of the door from the information given.\n</think>\n<answer>\nThe color of the door in front of the building is not specified in the description; it is mentioned that the image is in black and white, so we cannot determine the color.\n</answer>",
+    "pred_think": "The image is described as black and white, which means there are no colors present. Therefore, we cannot determine the color of the door from the information given.",
+    "pred_answer": "The color of the door in front of the building is not specified in the description; it is mentioned that the image is in black and white, so we cannot determine the color.",
+    "is_correct": 0
+  },
+  {
+    "instruction": "\n### Question:\nPlease answer based on the image content: Is the figurine in the bottom or in the top part?",
+    "gt_answer": "Bottom",
+    "prediction_raw": "<think>\nThe question asks about the location of the figurine. In the image, there is a figurine located at the top right corner of the room. Therefore, the figurine is in the top part of the image.\n</think>\n<answer>\nThe figurine is in the top part of the image.",
+    "pred_think": "The question asks about the location of the figurine. In the image, there is a figurine located at the top right corner of the room. Therefore, the figurine is in the top part of the image.",
+    "pred_answer": "",
+    "is_correct": 0
+  },
+  {
+    "instruction": "\n### Question:\nPlease answer based on the image content: Is the boy to the left or to the right of the chair?",
+    "gt_answer": "Left",
+    "prediction_raw": "<think>\nTo determine if the boy is to the left or right of the chair, I need to identify the positions of both the boy and the chair in the image. The boy is sitting on the floor, and the chair is positioned behind him. Since the boy is sitting closer to the foreground and the chair is further back, he must be to the left of the chair.\n</think>\n<answer>\nThe boy is to the left of the chair.",
+    "pred_think": "To determine if the boy is to the left or right of the chair, I need to identify the positions of both the boy and the chair in the image. The boy is sitting on the floor, and the chair is positioned behind him. Since the boy is sitting closer to the foreground and the chair is further back, he must be to the left of the chair.",
+    "pred_answer": "",
+    "is_correct": 0
+  },
+  {
+    "instruction": "\n### Question:\nPlease answer based on the image content: Which side of the photo is the napkin on?",
+    "gt_answer": "Right",
+    "prediction_raw": "<think>\nThe question asks about the position of the napkin in the image. To determine this, I need to identify where the napkin is located relative to the other objects in the image. The napkin appears to be placed on the table next to the person's hand, which is holding the plate. Since the person is sitting at the table, the napkin would typically be placed on their lap or beside them on the table. Therefore, the napkin is likely on the right side of the photo.\n</think>\n<answer>\nThe napkin is on the right side of the photo.",
+    "pred_think": "The question asks about the position of the napkin in the image. To determine this, I need to identify where the napkin is located relative to the other objects in the image. The napkin appears to be placed on the table next to the person's hand, which is holding the plate. Since the person is sitting at the table, the napkin would typically be placed on their lap or beside them on the table. Therefore, the napkin is likely on the right side of the photo.",
+    "pred_answer": "",
+    "is_correct": 0
+  },
+  {
+    "instruction": "\n### Question:\nPlease answer based on the image content: Is the microwave to the right or to the left of the black thing in the kitchen?",
+    "gt_answer": "Right",
+    "prediction_raw": "<think>\n1. The question asks about the position of the microwave relative to the black thing (refrigerator) in the kitchen.\n2. The microwave is located above the stove, which is part of the kitchen setup.\n3. The refrigerator is positioned to the left of the microwave.\n4. Therefore, the microwave is to the right of the refrigerator.\n</think>\n<answer>\nThe microwave is to the right of the black thing (refrigerator) in the kitchen.",
+    "pred_think": "1. The question asks about the position of the microwave relative to the black thing (refrigerator) in the kitchen.\n2. The microwave is located above the stove, which is part of the kitchen setup.\n3. The refrigerator is positioned to the left of the microwave.\n4. Therefore, the microwave is to the right of the refrigerator.",
+    "pred_answer": "",
+    "is_correct": 0
+  },
+  {
+    "instruction": "\n### Question:\nPlease answer based on the image content: What animal is in front of the bed post?",
+    "gt_answer": "Dog",
+    "prediction_raw": "<think>\n1. The image shows a bed with a black headboard.\n2. There are two dogs visible on the bed.\n3. One dog is lying down near the foot of the bed.\n4. The other dog is sitting up, facing the camera.\n5. The bed has a pink blanket with a floral pattern.\n6. The bed is positioned against a wall with a red curtain at the top.\n7. There is a string of lights hanging above the bed.\n8. The animals present are dogs.\n9. The question asks about the animal in front of the bed post.\n10. The bed post is part of the bed structure, not a separate object.\n11. The dog that is sitting up is closer to the camera and appears to be in front of the bed post.\n</think>\n<answer>\nThe animal in front of the bed post is a dog.",
+    "pred_think": "1. The image shows a bed with a black headboard.\n2. There are two dogs visible on the bed.\n3. One dog is lying down near the foot of the bed.\n4. The other dog is sitting up, facing the camera.\n5. The bed has a pink blanket with a floral pattern.\n6. The bed is positioned against a wall with a red curtain at the top.\n7. There is a string of lights hanging above the bed.\n8. The animals present are dogs.\n9. The question asks about the animal in front of the bed post.\n10. The bed post is part of the bed structure, not a separate object.\n11. The dog that is sitting up is closer to the camera and appears to be in front of the bed post.",
+    "pred_answer": "",
+    "is_correct": 0
+  },
+  {
+    "instruction": "\n### Question:\nPlease answer based on the image content: Is the striped chair light or heavy?",
+    "gt_answer": "Heavy",
+    "prediction_raw": "<think>\nTo determine if the striped chair is light or heavy, I need to consider the visible features of the chair. The chair has a striped pattern, which suggests it might be made from fabric or a lightweight material. Additionally, the chair appears to be placed against a wall, which could indicate that it is not very heavy. However, without seeing the entire chair or knowing its construction materials, it's difficult to definitively state whether it is light or heavy.\n</think>\n<answer>\nThe striped chair appears to be light.",
+    "pred_think": "To determine if the striped chair is light or heavy, I need to consider the visible features of the chair. The chair has a striped pattern, which suggests it might be made from fabric or a lightweight material. Additionally, the chair appears to be placed against a wall, which could indicate that it is not very heavy. However, without seeing the entire chair or knowing its construction materials, it's difficult to definitively state whether it is light or heavy.",
+    "pred_answer": "",
+    "is_correct": 0
+  },
+  {
+    "instruction": "\n### Question:\nPlease answer based on the image content: Is the cheese to the right or to the left of the napkin?",
+    "gt_answer": "Left",
+    "prediction_raw": "<think>\nTo determine whether the cheese is to the left or right of the napkin, I need to identify the positions of both items on the plate. The cheese appears to be positioned between the sandwich and the napkin. Since the sandwich is on the left side of the plate and the napkin is on the right side of the plate, the cheese must be to the left of the napkin.\n</think>\n<answer>\nThe cheese is to the left of the napkin.",
+    "pred_think": "To determine whether the cheese is to the left or right of the napkin, I need to identify the positions of both items on the plate. The cheese appears to be positioned between the sandwich and the napkin. Since the sandwich is on the left side of the plate and the napkin is on the right side of the plate, the cheese must be to the left of the napkin.",
+    "pred_answer": "",
+    "is_correct": 0
+  },
+  {
+    "instruction": "\n### Question:\nPlease answer based on the image content: What is on the wall the rug is next to?",
+    "gt_answer": "Television",
+    "prediction_raw": "<think>\n1. The image shows a bedroom setting.\n2. The wall near the rug has a window with wooden frames.\n3. There is a television mounted on the wall above the window.\n4. The window is positioned between the bed and the door.\n5. The television is the only item on the wall visible in the image.\n</think>\n<answer>\nThere is a television mounted on the wall above the window.",
+    "pred_think": "1. The image shows a bedroom setting.\n2. The wall near the rug has a window with wooden frames.\n3. There is a television mounted on the wall above the window.\n4. The window is positioned between the bed and the door.\n5. The television is the only item on the wall visible in the image.",
+    "pred_answer": "",
+    "is_correct": 0
+  },
+  {
+    "instruction": "\n### Question:\nPlease answer based on the image content: Is the yellow fruit unripe and peeled?",
+    "gt_answer": "No",
+    "prediction_raw": "<think>\nLet's analyze the image step by step:\n\n1. **Identify the Main Object**: The main object in the image is a child drinking from a glass with a straw.\n2. **Analyze the Drink**: The drink appears to be milk, as indicated by the white liquid in the glass.\n3. **Examine the Fruit**: The fruit in question is a banana, which is typically yellow and ripe.\n4. **Check for Peeling**: The banana is not peeled; it remains whole.\n5. **Conclusion**: Based on the information provided, the fruit (banana) is not unripe and has not been peeled.\n\nTherefore, the statement \"The yellow fruit is unripe and peeled\" is incorrect.\n</think>\n<answer>\nNo, the yellow fruit is not unripe and has not been peeled.\n</answer>",
+    "pred_think": "Let's analyze the image step by step:\n\n1. **Identify the Main Object**: The main object in the image is a child drinking from a glass with a straw.\n2. **Analyze the Drink**: The drink appears to be milk, as indicated by the white liquid in the glass.\n3. **Examine the Fruit**: The fruit in question is a banana, which is typically yellow and ripe.\n4. **Check for Peeling**: The banana is not peeled; it remains whole.\n5. **Conclusion**: Based on the information provided, the fruit (banana) is not unripe and has not been peeled.\n\nTherefore, the statement \"The yellow fruit is unripe and peeled\" is incorrect.",
+    "pred_answer": "No, the yellow fruit is not unripe and has not been peeled.",
+    "is_correct": 0
+  },
+  {
+    "instruction": "\n### Question:\nPlease answer based on the image content: Do the jeans have a different color than the sneakers?",
+    "gt_answer": "Yes",
+    "prediction_raw": "<think>\n1. The image shows a person skateboarding.\n2. The person is wearing blue jeans.\n3. The person is also wearing white sneakers.\n4. The blue jeans and white sneakers are both blue in color.\n5. Therefore, the jeans do not have a different color from the sneakers.\n</think>\n<answer>\nNo, the jeans do not have a different color from the sneakers. Both are blue.",
+    "pred_think": "1. The image shows a person skateboarding.\n2. The person is wearing blue jeans.\n3. The person is also wearing white sneakers.\n4. The blue jeans and white sneakers are both blue in color.\n5. Therefore, the jeans do not have a different color from the sneakers.",
+    "pred_answer": "",
+    "is_correct": 0
+  },
+  {
+    "instruction": "\n### Question:\nPlease answer based on the image content: Who is standing?",
+    "gt_answer": "Man",
+    "prediction_raw": "<think>\n1. The image shows a man standing near a wall.\n2. He is wearing a black shirt and khaki shorts.\n3. His posture suggests he is standing still.\n4. There are no other people visible in the image.\n5. Therefore, the person standing in the image is the man wearing a black shirt and khaki shorts.\n</think>\n<answer>\nThe man wearing a black shirt and khaki shorts is standing.",
+    "pred_think": "1. The image shows a man standing near a wall.\n2. He is wearing a black shirt and khaki shorts.\n3. His posture suggests he is standing still.\n4. There are no other people visible in the image.\n5. Therefore, the person standing in the image is the man wearing a black shirt and khaki shorts.",
+    "pred_answer": "",
+    "is_correct": 0
+  },
+  {
+    "instruction": "\n### Question:\nPlease answer based on the image content: Is there any tablecloth to the left of the brown plate?",
+    "gt_answer": "Yes",
+    "prediction_raw": "<think>\nThe question asks if there is a tablecloth to the left of the brown plate. In the image, we can see that the brown plate is placed on a white cloth, which appears to be a tablecloth. Therefore, the answer to the question is yes, there is a tablecloth to the left of the brown plate.\n</think>\n<answer>\nYes, there is a tablecloth to the left of the brown plate.</answer>",
+    "pred_think": "The question asks if there is a tablecloth to the left of the brown plate. In the image, we can see that the brown plate is placed on a white cloth, which appears to be a tablecloth. Therefore, the answer to the question is yes, there is a tablecloth to the left of the brown plate.",
+    "pred_answer": "Yes, there is a tablecloth to the left of the brown plate.",
+    "is_correct": 0
+  },
+  {
+    "instruction": "\n### Question:\nPlease answer based on the image content: On which side is the vehicle, the left or the right?",
+    "gt_answer": "Right",
+    "prediction_raw": "<think>\nTo determine the position of the vehicle relative to the man, I need to identify the vehicle in the image. The vehicle appears to be red and is located towards the right side of the image. It is positioned behind the man, as indicated by its placement in the background.\n</think>\n<answer>\nThe vehicle is on the right side of the image.",
+    "pred_think": "To determine the position of the vehicle relative to the man, I need to identify the vehicle in the image. The vehicle appears to be red and is located towards the right side of the image. It is positioned behind the man, as indicated by its placement in the background.",
+    "pred_answer": "",
+    "is_correct": 0
+  },
+  {
+    "instruction": "\n### Question:\nPlease answer based on the image content: What kind of furniture is to the right of the bedspread?",
+    "gt_answer": "Table",
+    "prediction_raw": "<think>\n1. The image shows a bed with a pink blanket and two dogs lying on it.\n2. To the right of the bed, there is a lamp with a white lampshade.\n3. The lamp is placed on a stand or table.\n4. Therefore, the furniture to the right of the bedspread is a lamp.\n</think>\n<answer>\nThe furniture to the right of the bedspread is a lamp.",
+    "pred_think": "1. The image shows a bed with a pink blanket and two dogs lying on it.\n2. To the right of the bed, there is a lamp with a white lampshade.\n3. The lamp is placed on a stand or table.\n4. Therefore, the furniture to the right of the bedspread is a lamp.",
+    "pred_answer": "",
+    "is_correct": 0
+  },
+  {
+    "instruction": "\n### Question:\nPlease answer based on the image content: Where is the girl, on the left or on the right side of the image?",
+    "gt_answer": "Right",
+    "prediction_raw": "<think>\nThe image shows a person skateboarding on a road. The skateboarder is positioned towards the center-right of the image, with their back facing the camera. Therefore, the girl is on the right side of the image.\n</think>\n<answer>\nThe girl is on the right side of the image.\n</answer>",
+    "pred_think": "The image shows a person skateboarding on a road. The skateboarder is positioned towards the center-right of the image, with their back facing the camera. Therefore, the girl is on the right side of the image.",
+    "pred_answer": "The girl is on the right side of the image.",
+    "is_correct": 0
+  },
+  {
+    "instruction": "\n### Question:\nPlease answer based on the image content: Are there both bats and chess pieces in the image?",
+    "gt_answer": "No",
+    "prediction_raw": "<think>\nTo determine if there are both bats and chess pieces in the image, I need to analyze the objects present in the image. The image shows a baseball game scene with players wearing uniforms, a baseball, and a baseball bat. There is no mention of chess pieces in the image description. Therefore, based on the information provided, there are no chess pieces in the image.\n</think>\n<answer>\nNo, there are not both bats and chess pieces in the image. The image only contains a baseball bat, which is used by the player in red to hit the ball. Chess pieces are not mentioned or visible in the image description.\n</answer>",
+    "pred_think": "To determine if there are both bats and chess pieces in the image, I need to analyze the objects present in the image. The image shows a baseball game scene with players wearing uniforms, a baseball, and a baseball bat. There is no mention of chess pieces in the image description. Therefore, based on the information provided, there are no chess pieces in the image.",
+    "pred_answer": "No, there are not both bats and chess pieces in the image. The image only contains a baseball bat, which is used by the player in red to hit the ball. Chess pieces are not mentioned or visible in the image description.",
+    "is_correct": 0
+  },
+  {
+    "instruction": "\n### Question:\nPlease answer based on the image content: Are there either any plates or mugs that are not sitting?",
+    "gt_answer": "No",
+    "prediction_raw": "<think>\nLet's analyze the image step by step:\n\n1. **Identify Objects**: The image contains a child drinking from a cup using a straw, a banana placed on a paper plate, and a table setting.\n\n2. **Focus on the Cup**: The cup is a clear glass mug with a handle, which is typically used for holding liquids like milk.\n\n3. **Check for Movement**: The child is holding the cup with one hand while drinking, indicating that the cup is being held in place.\n\n4. **Consider the Plate**: The banana is placed on a paper plate, which is also typically used for holding food items.\n\n5. **Evaluate the Position**: Both the cup and the plate are positioned on the table, suggesting they are stationary.\n\n6. **Conclusion**: Based on the analysis, neither the cup nor the plate are moving; they are stationary on the table.\n\n<answer>\nNo, there are no plates or mugs that are not sitting. Both the cup and the plate are stationary on the table.",
+    "pred_think": "",
+    "pred_answer": "",
+    "is_correct": 0
+  },
+  {
+    "instruction": "\n### Question:\nPlease answer based on the image content: Is the traffic signal on the right or on the left?",
+    "gt_answer": "Left",
+    "prediction_raw": "<think>\nThe traffic signal is located on the left side of the image. The red light is illuminated, indicating that vehicles must stop. The positioning of the traffic signal relative to the car suggests it is on the left side of the road.\n</think>\n<answer>\nThe traffic signal is on the left side of the image.",
+    "pred_think": "The traffic signal is located on the left side of the image. The red light is illuminated, indicating that vehicles must stop. The positioning of the traffic signal relative to the car suggests it is on the left side of the road.",
+    "pred_answer": "",
+    "is_correct": 0
+  },
+  {
+    "instruction": "\n### Question:\nPlease answer based on the image content: Is this laptop on a couch?",
+    "gt_answer": "No",
+    "prediction_raw": "<think>\nLet's analyze the image step by step:\n\n1. **Identify the main subject**: The main subject in the image is a laptop placed on a desk.\n2. **Examine the setting**: The laptop is situated on a wooden desk, which is typically used for working or studying.\n3. **Look for additional context clues**: There are no visible elements such as cushions, pillows, or a couch that would indicate the laptop is on a couch.\n4. **Consider the typical usage**: Laptops are commonly used on desks for work, study, or leisure activities, not typically on couches.\n\nBased on this analysis, we can conclude that the laptop is not on a couch.\n\n<answer>\nNo, the laptop is not on a couch. It is on a desk.",
+    "pred_think": "",
+    "pred_answer": "",
+    "is_correct": 0
+  },
+  {
+    "instruction": "\n### Question:\nPlease answer based on the image content: Are there both boxes and bananas in the photograph?",
+    "gt_answer": "Yes",
+    "prediction_raw": "<think>\n1. The image shows a market scene with various items for sale.\n2. There is a display of bananas hanging from hooks.\n3. There are also boxes visible in the background.\n4. The presence of both bananas and boxes confirms that there are indeed both boxes and bananas in the photograph.\n</think>\n<answer>\nYes, there are both boxes and bananas in the photograph.",
+    "pred_think": "1. The image shows a market scene with various items for sale.\n2. There is a display of bananas hanging from hooks.\n3. There are also boxes visible in the background.\n4. The presence of both bananas and boxes confirms that there are indeed both boxes and bananas in the photograph.",
+    "pred_answer": "",
+    "is_correct": 0
+  },
+  {
+    "instruction": "\n### Question:\nPlease answer based on the image content: Are there any windows or doors that are made of glass?",
+    "gt_answer": "No",
+    "prediction_raw": "<think>\nLet's analyze the image step by step:\n\n1. **Identify the main elements**: The image shows a living room setting with a fireplace, a couch, a child sitting on the floor, and a dog standing next to the child.\n\n2. **Focus on the fireplace**: The fireplace is visible in the background. It has a brick structure and a black screen. There are no windows or doors made of glass visible around the fireplace.\n\n3. **Examine the couch**: The couch is positioned against the wall. There are no windows or doors made of glass visible on the backrest or sides of the couch.\n\n4. **Check the child's position**: The child is sitting on the floor near the couch. There are no windows or doors made of glass visible behind the child.\n\n5. **Look at the dog**: The dog is standing next to the child. There are no windows or doors made of glass visible behind the dog.\n\n6. **Consider the overall layout**: The room appears to be furnished with a couch, a chair, and a fireplace. There are no windows or doors made of glass visible in the image.\n\n7. **Conclusion**: Based on the analysis, there are no windows or doors made of glass in the image.\n\n</think>\n<answer>\nNo, there are no windows or doors that are made of glass in the image.",
+    "pred_think": "Let's analyze the image step by step:\n\n1. **Identify the main elements**: The image shows a living room setting with a fireplace, a couch, a child sitting on the floor, and a dog standing next to the child.\n\n2. **Focus on the fireplace**: The fireplace is visible in the background. It has a brick structure and a black screen. There are no windows or doors made of glass visible around the fireplace.\n\n3. **Examine the couch**: The couch is positioned against the wall. There are no windows or doors made of glass visible on the backrest or sides of the couch.\n\n4. **Check the child's position**: The child is sitting on the floor near the couch. There are no windows or doors made of glass visible behind the child.\n\n5. **Look at the dog**: The dog is standing next to the child. There are no windows or doors made of glass visible behind the dog.\n\n6. **Consider the overall layout**: The room appears to be furnished with a couch, a chair, and a fireplace. There are no windows or doors made of glass visible in the image.\n\n7. **Conclusion**: Based on the analysis, there are no windows or doors made of glass in the image.",
+    "pred_answer": "",
+    "is_correct": 0
+  },
+  {
+    "instruction": "\n### Question:\nPlease answer based on the image content: Which place is it?",
+    "gt_answer": "Market",
+    "prediction_raw": "<think>\n1. The image shows a market scene with various fruits and vegetables.\n2. There are bananas prominently displayed at the front of the stall.\n3. The background includes a convenience store with a recognizable logo.\n4. The setting suggests a local market where fresh produce is sold.\n5. The presence of a convenience store indicates that this is likely a small town or rural area where such establishments are common.\n6. The overall atmosphere and arrangement of items suggest a bustling market environment.\n</think>\n<answer>\nIt is a local market.",
+    "pred_think": "1. The image shows a market scene with various fruits and vegetables.\n2. There are bananas prominently displayed at the front of the stall.\n3. The background includes a convenience store with a recognizable logo.\n4. The setting suggests a local market where fresh produce is sold.\n5. The presence of a convenience store indicates that this is likely a small town or rural area where such establishments are common.\n6. The overall atmosphere and arrangement of items suggest a bustling market environment.",
+    "pred_answer": "",
+    "is_correct": 0
+  },
+  {
+    "instruction": "\n### Question:\nPlease answer based on the image content: Do you see any table to the right of the dresser by the wall?",
+    "gt_answer": "No",
+    "prediction_raw": "<think>\n1. The question asks if there is a table to the right of the dresser by the wall.\n2. In the image, there is a dresser positioned against a wall.\n3. To the right of the dresser, there is indeed a table.\n4. The table appears to be made of wood and has a rectangular shape.\n5. It is placed near the entrance of the room, which suggests it might be used for displaying items or as a functional piece of furniture.\n6. Therefore, the answer to the question is yes, there is a table to the right of the dresser by the wall.\n</think>\n<answer>\nYes, there is a table to the right of the dresser by the wall.\n</answer>",
+    "pred_think": "1. The question asks if there is a table to the right of the dresser by the wall.\n2. In the image, there is a dresser positioned against a wall.\n3. To the right of the dresser, there is indeed a table.\n4. The table appears to be made of wood and has a rectangular shape.\n5. It is placed near the entrance of the room, which suggests it might be used for displaying items or as a functional piece of furniture.\n6. Therefore, the answer to the question is yes, there is a table to the right of the dresser by the wall.",
+    "pred_answer": "Yes, there is a table to the right of the dresser by the wall.",
+    "is_correct": 0
+  },
+  {
+    "instruction": "\n### Question:\nPlease answer based on the image content: Is the television to the left or to the right of him?",
+    "gt_answer": "Right",
+    "prediction_raw": "<think>\nThe question asks about the position of the television relative to the man. The man is seated on the left side of the image, facing the television. Therefore, the television is positioned to the right of the man.\n</think>\n<answer>\nThe television is to the right of the man.",
+    "pred_think": "The question asks about the position of the television relative to the man. The man is seated on the left side of the image, facing the television. Therefore, the television is positioned to the right of the man.",
+    "pred_answer": "",
+    "is_correct": 0
+  },
+  {
+    "instruction": "\n### Question:\nPlease answer based on the image content: Does the pillow that is to the right of the candle look red?",
+    "gt_answer": "Yes",
+    "prediction_raw": "<think>\n1. The image shows a living room setting.\n2. There is a child sitting on the floor next to a fireplace.\n3. The child is holding a Batman-themed box.\n4. To the right of the child, there is a dog standing.\n5. The dog has a collar around its neck.\n6. The child is wearing dark pants.\n7. The child is barefoot.\n8. The child is wearing a red cape.\n9. The child is wearing a blue shirt.\n10. The child is sitting on a beige carpet.\n11. There is a lamp on a table behind the child.\n12. There is a fireplace with a red blanket draped over it.\n13. There is a picture hanging on the wall above the fireplace.\n14. There is a striped pillow on the couch.\n15. The pillow is placed against the back of the couch.\n16. The pillow appears to be red.\n17. The pillow is positioned to the right of the child.\n18. The pillow is not directly next to the child but is part of the same scene.\n19. The pillow is not touching the child.\n20. The pillow is not the only object in the image.\n21. The pillow is not the focus of the image.\n22. The pillow is not the most prominent object in the image.\n23. The pillow is not the only object in the image.\n24. The pillow is not the most prominent object in the image.\n25. The pillow is not the most prominent object in the image.\n26. The pillow is not the most prominent object in the image.\n27. The pillow is not the most prominent object in the image.\n28. The pillow is not the most prominent object in the image.\n29. The pillow is not the most prominent object in the image.\n30. The pillow is not the most prominent object in the image.\n31. The pillow is not the most prominent object in the image.\n32. The pillow is not the most prominent object in the image.\n33. The pillow is not the most prominent object in the image.\n34. The pillow is not the most prominent object in the image.\n35. The pillow is not the most prominent object in the image.\n36. The pillow is not the most prominent object in the image.\n37. The pillow is not the most prominent object in the image.\n38. The pillow is not the most prominent object in the image.\n39. The pillow is not the most prominent object in the image.\n40. The pillow is not the most prominent object in the image.\n41. The pillow is not the most prominent object in the image.\n42. The pillow is not the most prominent object in the image.\n43. The pillow is not the most prominent object in the image.\n44. The pillow is not the most prominent object in the image.\n45. The pillow is not the most prominent object in the image.\n46. The pillow is not the most prominent object in the image.\n47. The pillow is not the most prominent object in the image.\n48. The pillow is not the most prominent object in the image.\n49. The pillow is not the most prominent object in the image.\n50. The pillow is not the most prominent object in the image.\n51. The pillow is not the most prominent object in the image.\n52. The pillow is not the most prominent object in the image.\n53. The pillow is not the most prominent object in the image.\n54. The pillow is not the most prominent object in the image.\n55. The pillow is not the most prominent object in the image.\n56. The pillow is not the most prominent object in the image.\n57. The pillow is not the most prominent object in the image.\n58. The pillow is not the most prominent object in the image.\n59. The pillow is not the most prominent object in the image.\n60. The pillow is not the most prominent object in the image.\n61. The pillow is not the most prominent object in the image.\n62. The pillow is not the most prominent object in the image.\n63. The pillow is not the most prominent object in the image.\n64. The pillow is not the most prominent object in the image.\n65. The pillow is not the most prominent object in the image.\n66. The pillow is not the most prominent object in the image.\n67. The pillow is not the most prominent object in the image.\n68. The pillow is not the most prominent object in the image.\n69. The pillow is not the most prominent object in the image.\n70. The pillow is not the most prominent object in the image.\n71. The pillow is not the most prominent object in the image.\n72. The pillow is not the most",
+    "pred_think": "",
+    "pred_answer": "",
+    "is_correct": 0
+  },
+  {
+    "instruction": "\n### Question:\nPlease answer based on the image content: Which side of the image is the bag on?",
+    "gt_answer": "Right",
+    "prediction_raw": "<think>\n1. The image shows a street scene with various elements such as people, traffic lights, and signs.\n2. There is a person walking on the sidewalk, carrying a bag.\n3. The bag is being carried by the person who is walking towards the right side of the image.\n4. Therefore, the bag is on the left side of the image.\n</think>\n<answer>\nThe bag is on the left side of the image.",
+    "pred_think": "1. The image shows a street scene with various elements such as people, traffic lights, and signs.\n2. There is a person walking on the sidewalk, carrying a bag.\n3. The bag is being carried by the person who is walking towards the right side of the image.\n4. Therefore, the bag is on the left side of the image.",
+    "pred_answer": "",
+    "is_correct": 0
+  },
+  {
+    "instruction": "\n### Question:\nPlease answer based on the image content: Is the newspaper behind the animal that is in the cup?",
+    "gt_answer": "Yes",
+    "prediction_raw": "<think>\nThe newspaper is positioned behind the cat's head, which means it is located above the cat's head and partially obscured by it. Therefore, the newspaper is not directly behind the cat but rather behind the cat's head.\n</think>\n<answer>\nNo, the newspaper is not behind the cat. It is positioned above the cat's head, partially obscured by it.",
+    "pred_think": "The newspaper is positioned behind the cat's head, which means it is located above the cat's head and partially obscured by it. Therefore, the newspaper is not directly behind the cat but rather behind the cat's head.",
+    "pred_answer": "",
+    "is_correct": 0
+  },
+  {
+    "instruction": "\n### Question:\nPlease answer based on the image content: Is the person to the right of the woman wearing a hat?",
+    "gt_answer": "No",
+    "prediction_raw": "<think>\n1. The image shows a man holding a bowl of food.\n2. To the right of the man, there is a woman sitting at a table.\n3. The woman is wearing a blue tank top.\n4. There is no indication that she is wearing a hat.\n5. Therefore, the person to the right of the woman is not wearing a hat.\n</think>\n<answer>\nNo, the person to the right of the woman is not wearing a hat.",
+    "pred_think": "1. The image shows a man holding a bowl of food.\n2. To the right of the man, there is a woman sitting at a table.\n3. The woman is wearing a blue tank top.\n4. There is no indication that she is wearing a hat.\n5. Therefore, the person to the right of the woman is not wearing a hat.",
+    "pred_answer": "",
+    "is_correct": 0
+  },
+  {
+    "instruction": "\n### Question:\nPlease answer based on the image content: Is it outdoors?",
+    "gt_answer": "Yes",
+    "prediction_raw": "<think>\nThe image shows a street scene with buildings, people walking, and vehicles parked along the road. The presence of trees, street lamps, and the overall urban setting strongly suggest that this is an outdoor scene. Additionally, the weather appears clear, which is typical for outdoor environments.\n</think>\n<answer>\nYes, it is outdoors.",
+    "pred_think": "The image shows a street scene with buildings, people walking, and vehicles parked along the road. The presence of trees, street lamps, and the overall urban setting strongly suggest that this is an outdoor scene. Additionally, the weather appears clear, which is typical for outdoor environments.",
+    "pred_answer": "",
+    "is_correct": 0
+  },
+  {
+    "instruction": "\n### Question:\nPlease answer based on the image content: Are there flags or cones?",
+    "gt_answer": "No",
+    "prediction_raw": "<think>\nThe image shows a man sleeping on a bed with two cats. There is no indication of flags or cones in the image. The focus is on the man, the cats, and the bedding.\n</think>\n<answer>\nNo, there are no flags or cones in the image.",
+    "pred_think": "The image shows a man sleeping on a bed with two cats. There is no indication of flags or cones in the image. The focus is on the man, the cats, and the bedding.",
+    "pred_answer": "",
+    "is_correct": 0
+  },
+  {
+    "instruction": "\n### Question:\nPlease answer based on the image content: Are there any buses on the street?",
+    "gt_answer": "No",
+    "prediction_raw": "<think>\n1. The image shows a street scene at night.\n2. There is a traffic light visible in the image.\n3. The traffic light is red, indicating that vehicles must stop.\n4. There are no buses visible in the image.\n5. The focus is on cars and a bus stop sign, but no buses are present.\n</think>\n<answer>\nNo, there are no buses on the street.",
+    "pred_think": "1. The image shows a street scene at night.\n2. There is a traffic light visible in the image.\n3. The traffic light is red, indicating that vehicles must stop.\n4. There are no buses visible in the image.\n5. The focus is on cars and a bus stop sign, but no buses are present.",
+    "pred_answer": "",
+    "is_correct": 0
+  },
+  {
+    "instruction": "\n### Question:\nPlease answer based on the image content: What is the black clothing item called?",
+    "gt_answer": "Shirt",
+    "prediction_raw": "<think>\nThe black clothing item in the image is a long-sleeved shirt. This can be determined by observing the sleeve length and the overall fit around the upper body, which is characteristic of a long-sleeved shirt.\n</think>\n<answer>\nlong-sleeved shirt\n</answer>",
+    "pred_think": "The black clothing item in the image is a long-sleeved shirt. This can be determined by observing the sleeve length and the overall fit around the upper body, which is characteristic of a long-sleeved shirt.",
+    "pred_answer": "long-sleeved shirt",
+    "is_correct": 0
+  },
+  {
+    "instruction": "\n### Question:\nPlease answer based on the image content: Is the green bag to the right or to the left of the young person?",
+    "gt_answer": "Left",
+    "prediction_raw": "<think>\n1. The question asks about the position of the green bag relative to the young person.\n2. The green bag is visible in the image.\n3. It is positioned to the left of the young person.\n4. The young person is holding a hot dog in his right hand.\n5. The green bag is not directly related to the action of eating the hot dog.\n6. Therefore, the green bag is to the left of the young person.\n</think>\n<answer>\nThe green bag is to the left of the young person.",
+    "pred_think": "1. The question asks about the position of the green bag relative to the young person.\n2. The green bag is visible in the image.\n3. It is positioned to the left of the young person.\n4. The young person is holding a hot dog in his right hand.\n5. The green bag is not directly related to the action of eating the hot dog.\n6. Therefore, the green bag is to the left of the young person.",
+    "pred_answer": "",
+    "is_correct": 0
+  },
+  {
+    "instruction": "\n### Question:\nPlease answer based on the image content: Are there any people to the left of the white box?",
+    "gt_answer": "No",
+    "prediction_raw": "<think>\nLet's analyze the image step by step:\n\n1. **Identify the main elements**: The image shows a bakery counter with various pastries and a display case filled with donuts. There are several people standing in line at the counter.\n\n2. **Focus on the white box**: The white box is located near the center of the image, slightly to the right side of the counter.\n\n3. **Look for people to the left of the white box**: We need to identify individuals who are positioned to the left of the white box.\n\n4. **Analyze the positioning**: The person closest to the white box appears to be wearing a black shirt and is standing behind the counter. This individual is likely the person serving the customers.\n\n5. **Conclusion**: Based on the positioning, there are no people directly to the left of the white box.\n\n<answer>\nNo, there are no people to the left of the white box.",
+    "pred_think": "",
+    "pred_answer": "",
+    "is_correct": 0
+  },
+  {
+    "instruction": "\n### Question:\nPlease answer based on the image content: Is the heavy chair to the left or to the right of the box?",
+    "gt_answer": "Right",
+    "prediction_raw": "<think>\nTo determine if the heavy chair is to the left or right of the box, I need to identify the positions of both objects in the image. The box is located near the bottom center of the image, while the heavy chair is positioned towards the top right corner. Therefore, the heavy chair is to the right of the box.\n</think>\n<answer>\nThe heavy chair is to the right of the box.",
+    "pred_think": "To determine if the heavy chair is to the left or right of the box, I need to identify the positions of both objects in the image. The box is located near the bottom center of the image, while the heavy chair is positioned towards the top right corner. Therefore, the heavy chair is to the right of the box.",
+    "pred_answer": "",
+    "is_correct": 0
+  },
+  {
+    "instruction": "\n### Question:\nPlease answer based on the image content: Is the house in the bottom?",
+    "gt_answer": "No",
+    "prediction_raw": "<think>\nThe instruction asks if the house is in the bottom of the image. However, the image description does not mention houses at all. The image shows a man riding a horse in what appears to be a fairground or festival setting. There are no houses visible in the image. Therefore, the instruction cannot be answered based on the given information.\n</think>\n<answer>\nNo, the house is not in the bottom of the image.",
+    "pred_think": "The instruction asks if the house is in the bottom of the image. However, the image description does not mention houses at all. The image shows a man riding a horse in what appears to be a fairground or festival setting. There are no houses visible in the image. Therefore, the instruction cannot be answered based on the given information.",
+    "pred_answer": "",
+    "is_correct": 0
+  },
+  {
+    "instruction": "\n### Question:\nPlease answer based on the image content: What kind of furniture is to the left of the dresser?",
+    "gt_answer": "Table",
+    "prediction_raw": "<think>\n1. The image shows a room with various pieces of furniture.\n2. To the left of the dresser, there is a table.\n3. The table appears to be made of wood and has a rectangular shape.\n4. It seems to be a coffee table or a side table.\n5. The table is positioned near the dresser, which suggests it might be used for placing items like books, magazines, or decorative objects.\n6. Therefore, the type of furniture to the left of the dresser is a table.\n</think>\n<answer>\nThe type of furniture to the left of the dresser is a table.\n</answer>",
+    "pred_think": "1. The image shows a room with various pieces of furniture.\n2. To the left of the dresser, there is a table.\n3. The table appears to be made of wood and has a rectangular shape.\n4. It seems to be a coffee table or a side table.\n5. The table is positioned near the dresser, which suggests it might be used for placing items like books, magazines, or decorative objects.\n6. Therefore, the type of furniture to the left of the dresser is a table.",
+    "pred_answer": "The type of furniture to the left of the dresser is a table.",
+    "is_correct": 0
+  },
+  {
+    "instruction": "\n### Question:\nPlease answer based on the image content: Is there a banana in the box to the left of the woman?",
+    "gt_answer": "Yes",
+    "prediction_raw": "<think>\n1. The image shows a market scene with various items for sale.\n2. There is a box to the left of the woman, which appears to contain bananas.\n3. The bananas in the box are visible and identifiable as bananas.\n4. Therefore, there is indeed a banana in the box to the left of the woman.\n</think>\n<answer>\nYes, there is a banana in the box to the left of the woman.</answer>",
+    "pred_think": "1. The image shows a market scene with various items for sale.\n2. There is a box to the left of the woman, which appears to contain bananas.\n3. The bananas in the box are visible and identifiable as bananas.\n4. Therefore, there is indeed a banana in the box to the left of the woman.",
+    "pred_answer": "Yes, there is a banana in the box to the left of the woman.",
+    "is_correct": 0
+  },
+  {
+    "instruction": "\n### Question:\nPlease answer based on the image content: Is the bus to the right or to the left of the person on the right?",
+    "gt_answer": "Left",
+    "prediction_raw": "<think>\n1. The image shows a busy street scene with various vehicles and people.\n2. The bus is positioned in the middle of the road, closer to the center of the image.\n3. The person on the right side of the image is walking along the sidewalk.\n4. The bus is not directly next to the person but rather further down the road.\n5. Based on the positioning, the bus is to the left of the person on the right.\n</think>\n<answer>\nThe bus is to the left of the person on the right.",
+    "pred_think": "1. The image shows a busy street scene with various vehicles and people.\n2. The bus is positioned in the middle of the road, closer to the center of the image.\n3. The person on the right side of the image is walking along the sidewalk.\n4. The bus is not directly next to the person but rather further down the road.\n5. Based on the positioning, the bus is to the left of the person on the right.",
+    "pred_answer": "",
+    "is_correct": 0
+  },
+  {
+    "instruction": "\n### Question:\nPlease answer based on the image content: What is the person that is to the left of the coach wearing?",
+    "gt_answer": "Uniform",
+    "prediction_raw": "<think>\n1. The image shows a group of baseball players on a field.\n2. The player to the left of the coach is wearing a red cap, white jersey, and white pants.\n3. The player's jersey number is visible as \"11\".\n4. The player is also wearing a red belt and has a red glove on his left hand.\n5. The player's right hand is not visible in the image.\n6. The player's left foot is lifted off the ground, indicating he might be in motion.\n7. The player's right foot is on the ground, suggesting he is standing still.\n8. The player's left leg is bent at the knee, which could indicate he is preparing to run or has just finished running.\n9. The player's right leg is straight, which suggests he is standing still.\n10. The player's left arm is extended outward, possibly for balance or to signal a teammate.\n11. The player's right arm is bent at the elbow, holding the glove.\n12. The player's left hand is not visible in the image.\n13. The player's right hand is visible and is holding a glove.\n14. The player's left hand is not visible in the image.\n15. The player's left foot is lifted off the ground, indicating he might be in motion.\n16. The player's right foot is on the ground, suggesting he is standing still.\n17. The player's left leg is bent at the knee, which could indicate he is preparing to run or has just finished running.\n18. The player's right leg is straight, which suggests he is standing still.\n19. The player's left arm is extended outward, possibly for balance or to signal a teammate.\n20. The player's right arm is bent at the elbow, holding the glove.\n21. The player's left hand is not visible in the image.\n22. The player's right hand is visible and is holding a glove.\n23. The player's left hand is not visible in the image.\n24. The player's left foot is lifted off the ground, indicating he might be in motion.\n25. The player's right foot is on the ground, suggesting he is standing still.\n26. The player's left leg is bent at the knee, which could indicate he is preparing to run or has just finished running.\n27. The player's right leg is straight, which suggests he is standing still.\n28. The player's left arm is extended outward, possibly for balance or to signal a teammate.\n29. The player's right arm is bent at the elbow, holding the glove.\n30. The player's left hand is not visible in the image.\n31. The player's right hand is visible and is holding a glove.\n32. The player's left hand is not visible in the image.\n33. The player's left foot is lifted off the ground, indicating he might be in motion.\n34. The player's right foot is on the ground, suggesting he is standing still.\n35. The player's left leg is bent at the knee, which could indicate he is preparing to run or has just finished running.\n36. The player's right leg is straight, which suggests he is standing still.\n37. The player's left arm is extended outward, possibly for balance or to signal a teammate.\n38. The player's right arm is bent at the elbow, holding the glove.\n39. The player's left hand is not visible in the image.\n40. The player's right hand is visible and is holding a glove.\n41. The player's left hand is not visible in the image.\n42. The player's left foot is lifted off the ground, indicating he might be in motion.\n43. The player's right foot is on the ground, suggesting he is standing still.\n44. The player's left leg is bent at the knee, which could indicate he is preparing to run or has just finished running.\n45. The player's right leg is straight, which suggests he is standing still.\n46. The player's left arm is extended outward, possibly for balance or to signal a teammate.\n47. The player's right arm is bent at the elbow, holding the glove.\n48. The player's left hand is not visible in the image.\n49. The player's right hand is visible and is holding a glove.\n50. The player's left hand is not visible in the image.\n51. The player's left foot is lifted off the ground, indicating he might be in motion.\n52. The player's right foot is on the ground, suggesting he is standing still.\n53. The player's left leg is bent at the knee, which could indicate he is preparing to run or has just finished running.\n54. The player's right leg is straight, which suggests he is standing still",
+    "pred_think": "",
+    "pred_answer": "",
+    "is_correct": 0
+  },
+  {
+    "instruction": "\n### Question:\nPlease answer based on the image content: What is mounted on the wall?",
+    "gt_answer": "Television",
+    "prediction_raw": "<think>\nThe question asks what is mounted on the wall. In the image, there is a television mounted on the wall above the bed. The television is positioned against the wall, which suggests it is likely mounted using wall mounts or brackets.\n</think>\n<answer>\nA television is mounted on the wall.",
+    "pred_think": "The question asks what is mounted on the wall. In the image, there is a television mounted on the wall above the bed. The television is positioned against the wall, which suggests it is likely mounted using wall mounts or brackets.",
+    "pred_answer": "",
+    "is_correct": 0
+  },
+  {
+    "instruction": "\n### Question:\nPlease answer based on the image content: What is the fence made of?",
+    "gt_answer": "Wood",
+    "prediction_raw": "<think>\nThe fence in the image is made of wooden posts and horizontal rails. The posts are tall and sturdy, while the rails are shorter and spaced evenly apart. This type of fence is commonly used for enclosing pastures or fields, providing a barrier between the pasture and the surrounding area.\n</think>\n<answer>\nThe fence is made of wood. It consists of vertical posts connected by horizontal rails, which is typical for fencing in pastures or fields.",
+    "pred_think": "The fence in the image is made of wooden posts and horizontal rails. The posts are tall and sturdy, while the rails are shorter and spaced evenly apart. This type of fence is commonly used for enclosing pastures or fields, providing a barrier between the pasture and the surrounding area.",
+    "pred_answer": "",
+    "is_correct": 0
+  },
+  {
+    "instruction": "\n### Question:\nPlease answer based on the image content: Do you see any glasses to the right of the woman that is wearing trousers?",
+    "gt_answer": "No",
+    "prediction_raw": "<think>\n1. The question asks if there are glasses to the right of a woman wearing trousers.\n2. I need to identify the woman wearing trousers first.\n3. In the image, there is a woman wearing trousers who appears to be walking towards the right side of the image.\n4. Now, I need to check if there are any glasses near her.\n5. There are no glasses visible in the image next to the woman wearing trousers.\n6. Therefore, the answer to the question is no, there are no glasses to the right of the woman wearing trousers.\n</think>\n<answer>\nNo, there are no glasses to the right of the woman wearing trousers.",
+    "pred_think": "1. The question asks if there are glasses to the right of a woman wearing trousers.\n2. I need to identify the woman wearing trousers first.\n3. In the image, there is a woman wearing trousers who appears to be walking towards the right side of the image.\n4. Now, I need to check if there are any glasses near her.\n5. There are no glasses visible in the image next to the woman wearing trousers.\n6. Therefore, the answer to the question is no, there are no glasses to the right of the woman wearing trousers.",
+    "pred_answer": "",
+    "is_correct": 0
+  },
+  {
+    "instruction": "\n### Question:\nPlease answer based on the image content: On which side is the picture?",
+    "gt_answer": "Right",
+    "prediction_raw": "<think>\nThe question asks about the position of a picture in the image. However, there is no visible picture in the image description. The image shows a kitchen with white cabinets, a sink, and various items like a bottle, a coffee maker, and a dish rack. There is also a refrigerator with a painting on it, but it's not clear if this is the same as the \"picture\" mentioned in the question. Without additional context or information, I cannot accurately determine the position of the picture.\n</think>\n<answer>\nThe image does not contain a picture.",
+    "pred_think": "The question asks about the position of a picture in the image. However, there is no visible picture in the image description. The image shows a kitchen with white cabinets, a sink, and various items like a bottle, a coffee maker, and a dish rack. There is also a refrigerator with a painting on it, but it's not clear if this is the same as the \"picture\" mentioned in the question. Without additional context or information, I cannot accurately determine the position of the picture.",
+    "pred_answer": "",
+    "is_correct": 0
+  },
+  {
+    "instruction": "\n### Question:\nPlease answer based on the image content: Are there microwaves above the oven?",
+    "gt_answer": "Yes",
+    "prediction_raw": "<think>\n1. The question asks if there is a microwave above the oven.\n2. In the image, I can see a microwave oven positioned directly above the stove.\n3. The microwave is placed on top of the stove, which is a common placement for microwaves in kitchen settings.\n4. Therefore, the answer to the question is yes, there is a microwave above the oven.\n</think>\n<answer>\nYes, there is a microwave above the oven.",
+    "pred_think": "1. The question asks if there is a microwave above the oven.\n2. In the image, I can see a microwave oven positioned directly above the stove.\n3. The microwave is placed on top of the stove, which is a common placement for microwaves in kitchen settings.\n4. Therefore, the answer to the question is yes, there is a microwave above the oven.",
+    "pred_answer": "",
+    "is_correct": 0
+  },
+  {
+    "instruction": "\n### Question:\nPlease answer based on the image content: Do you see any chair near the bed the pillow is on top of?",
+    "gt_answer": "No",
+    "prediction_raw": "<think>\nLet's analyze the image step by step:\n\n1. **Identify the main subject**: The main subject of the image is a bed with a pillow on top of it.\n2. **Examine the surrounding elements**: There are no chairs visible in the image.\n3. **Consider the context**: The image shows a bedroom setting with a bed, pillows, and a blanket.\n4. **Evaluate the question**: The question asks if there is a chair near the bed.\n5. **Conclusion**: Based on the information provided, there is no chair present in the image.\n\nTherefore, the answer is no, there is no chair near the bed.\n</think>\n<answer>\nNo, there is no chair near the bed.\n</answer>",
+    "pred_think": "Let's analyze the image step by step:\n\n1. **Identify the main subject**: The main subject of the image is a bed with a pillow on top of it.\n2. **Examine the surrounding elements**: There are no chairs visible in the image.\n3. **Consider the context**: The image shows a bedroom setting with a bed, pillows, and a blanket.\n4. **Evaluate the question**: The question asks if there is a chair near the bed.\n5. **Conclusion**: Based on the information provided, there is no chair present in the image.\n\nTherefore, the answer is no, there is no chair near the bed.",
+    "pred_answer": "No, there is no chair near the bed.",
+    "is_correct": 0
+  },
+  {
+    "instruction": "\n### Question:\nPlease answer based on the image content: Is the color of the umbrella the same as that of the purse?",
+    "gt_answer": "No",
+    "prediction_raw": "<think>\nLet's analyze the image step by step:\n\n1. **Identify the Main Object**: The main focus is on the people and their actions at the counter.\n2. **Focus on Specific Objects**: We need to identify the umbrella and the purse.\n3. **Analyze the Color**: The umbrella appears to be blue, while the purse is also blue.\n4. **Compare Colors**: Both the umbrella and the purse are blue.\n5. **Conclusion**: Since both the umbrella and the purse are blue, they have the same color.\n\nBased on this analysis, we can conclude that the color of the umbrella is indeed the same as that of the purse.\n</think>\n<answer>\nYes, the color of the umbrella is the same as that of the purse.",
+    "pred_think": "Let's analyze the image step by step:\n\n1. **Identify the Main Object**: The main focus is on the people and their actions at the counter.\n2. **Focus on Specific Objects**: We need to identify the umbrella and the purse.\n3. **Analyze the Color**: The umbrella appears to be blue, while the purse is also blue.\n4. **Compare Colors**: Both the umbrella and the purse are blue.\n5. **Conclusion**: Since both the umbrella and the purse are blue, they have the same color.\n\nBased on this analysis, we can conclude that the color of the umbrella is indeed the same as that of the purse.",
+    "pred_answer": "",
+    "is_correct": 0
+  },
+  {
+    "instruction": "\n### Question:\nPlease answer based on the image content: Is there a desk in front of the door?",
+    "gt_answer": "No",
+    "prediction_raw": "<think>\nLet's analyze the image step by step:\n\n1. **Identify the Door**: The door is visible in the background, but it is not the focus of the image. It is located on the right side of the room.\n\n2. **Check for Desks**: There are no desks visible in the image. The only furniture mentioned is a couch and a fireplace.\n\n3. **Conclusion**: Since there are no desks present in the image, the answer is no, there is no desk in front of the door.\n\n</think>\n<answer>\nNo, there is no desk in front of the door.\n</answer>",
+    "pred_think": "Let's analyze the image step by step:\n\n1. **Identify the Door**: The door is visible in the background, but it is not the focus of the image. It is located on the right side of the room.\n\n2. **Check for Desks**: There are no desks visible in the image. The only furniture mentioned is a couch and a fireplace.\n\n3. **Conclusion**: Since there are no desks present in the image, the answer is no, there is no desk in front of the door.",
+    "pred_answer": "No, there is no desk in front of the door.",
+    "is_correct": 0
+  },
+  {
+    "instruction": "\n### Question:\nPlease answer based on the image content: Is the plate green and full?",
+    "gt_answer": "No",
+    "prediction_raw": "<think>\nLet's analyze the image step by step:\n\n1. **Identify the Plate**: The image shows a white paper plate on a table.\n2. **Check for Food Items**: On the plate, there is a banana that appears to be cut into pieces.\n3. **Evaluate the Plate's Color**: The plate is white, which means it is not green.\n4. **Determine if the Plate is Full**: The banana pieces are visible on the plate, indicating that the plate is not empty.\n\nBased on this analysis, the plate is not green and is not full.\n</think>\n<answer>\nNo, the plate is not green and is not full.",
+    "pred_think": "Let's analyze the image step by step:\n\n1. **Identify the Plate**: The image shows a white paper plate on a table.\n2. **Check for Food Items**: On the plate, there is a banana that appears to be cut into pieces.\n3. **Evaluate the Plate's Color**: The plate is white, which means it is not green.\n4. **Determine if the Plate is Full**: The banana pieces are visible on the plate, indicating that the plate is not empty.\n\nBased on this analysis, the plate is not green and is not full.",
+    "pred_answer": "",
+    "is_correct": 0
+  },
+  {
+    "instruction": "\n### Question:\nPlease answer based on the image content: Is the laptop to the left or to the right of the box that is shown in the image?",
+    "gt_answer": "Right",
+    "prediction_raw": "<think>\n1. The image shows a desk setup with various items.\n2. There is a box located at the top-left corner of the desk.\n3. The laptop is positioned towards the bottom-right side of the desk.\n4. Therefore, the laptop is to the right of the box.\n</think>\n<answer>\nThe laptop is to the right of the box.",
+    "pred_think": "1. The image shows a desk setup with various items.\n2. There is a box located at the top-left corner of the desk.\n3. The laptop is positioned towards the bottom-right side of the desk.\n4. Therefore, the laptop is to the right of the box.",
+    "pred_answer": "",
+    "is_correct": 0
+  },
+  {
+    "instruction": "\n### Question:\nPlease answer based on the image content: Which color is the bike?",
+    "gt_answer": "Orange",
+    "prediction_raw": "<think>\n1. The image shows a bicycle.\n2. The bicycle has a frame that is primarily orange.\n3. The wheels, handlebars, and other parts of the bicycle are black.\n4. The background is predominantly black and white, which makes the orange frame stand out.\n5. Therefore, the color of the bike is orange.\n</think>\n<answer>\nThe bike is orange.",
+    "pred_think": "1. The image shows a bicycle.\n2. The bicycle has a frame that is primarily orange.\n3. The wheels, handlebars, and other parts of the bicycle are black.\n4. The background is predominantly black and white, which makes the orange frame stand out.\n5. Therefore, the color of the bike is orange.",
+    "pred_answer": "",
+    "is_correct": 0
+  },
+  {
+    "instruction": "\n### Question:\nPlease answer based on the image content: What are the pieces of furniture behind the happy woman?",
+    "gt_answer": "Chairs",
+    "prediction_raw": "<think>\nThe image shows a woman sitting at a table. The furniture visible includes chairs and tables. There is a chair directly behind her, which she is seated on. Additionally, there are other chairs and tables in the background, indicating that this is likely a dining area or restaurant setting.\n</think>\n<answer>\nThere are chairs and tables behind the happy woman.",
+    "pred_think": "The image shows a woman sitting at a table. The furniture visible includes chairs and tables. There is a chair directly behind her, which she is seated on. Additionally, there are other chairs and tables in the background, indicating that this is likely a dining area or restaurant setting.",
+    "pred_answer": "",
+    "is_correct": 0
+  },
+  {
+    "instruction": "\n### Question:\nPlease answer based on the image content: Are there gifts or carts?",
+    "gt_answer": "No",
+    "prediction_raw": "<think>\nLet's analyze the image step by step:\n\n1. **Identify the Main Subject**: The main subject is a man sitting at a table with a bowl of food in front of him. He is wearing a dark blue t-shirt with the word \"BURNING\" printed on it.\n\n2. **Look for Gifts**: There are no visible gifts in the image. The focus is on the man eating his meal.\n\n3. **Check for Carts**: There are no carts present in the image. The setting appears to be a casual dining environment, but there are no carts visible.\n\n4. **Contextual Clues**: The background shows other people seated at tables, suggesting a restaurant or cafe setting. However, there are no additional items like carts that would typically be found in such a setting.\n\n5. **Conclusion**: Based on the information available, there are no gifts or carts present in the image.\n\n</think>\n<answer>\nNo, there are no gifts or carts in the image.\n</answer>",
+    "pred_think": "Let's analyze the image step by step:\n\n1. **Identify the Main Subject**: The main subject is a man sitting at a table with a bowl of food in front of him. He is wearing a dark blue t-shirt with the word \"BURNING\" printed on it.\n\n2. **Look for Gifts**: There are no visible gifts in the image. The focus is on the man eating his meal.\n\n3. **Check for Carts**: There are no carts present in the image. The setting appears to be a casual dining environment, but there are no carts visible.\n\n4. **Contextual Clues**: The background shows other people seated at tables, suggesting a restaurant or cafe setting. However, there are no additional items like carts that would typically be found in such a setting.\n\n5. **Conclusion**: Based on the information available, there are no gifts or carts present in the image.",
+    "pred_answer": "No, there are no gifts or carts in the image.",
+    "is_correct": 0
+  },
+  {
+    "instruction": "\n### Question:\nPlease answer based on the image content: Which color is the lady's hair?",
+    "gt_answer": "Gray",
+    "prediction_raw": "<think>\n1. The image shows two men and a woman in the background.\n2. The woman is wearing a white shirt and has short hair.\n3. The woman's hair is not visible enough to determine its color from the image.\n4. Therefore, the color of the lady's hair cannot be determined from the image.\n</think>\n<answer>\nThe color of the lady's hair cannot be determined from the image.",
+    "pred_think": "1. The image shows two men and a woman in the background.\n2. The woman is wearing a white shirt and has short hair.\n3. The woman's hair is not visible enough to determine its color from the image.\n4. Therefore, the color of the lady's hair cannot be determined from the image.",
+    "pred_answer": "",
+    "is_correct": 0
+  },
+  {
+    "instruction": "\n### Question:\nPlease answer based on the image content: Are the bananas to the left of the bags both ripe and red?",
+    "gt_answer": "No",
+    "prediction_raw": "<think>\n1. The image shows a market scene with various items for sale.\n2. There is a display of bananas at the front of the market.\n3. The bananas are described as being yellow and unripe.\n4. The question asks if the bananas are ripe and red.\n5. Based on the description, the bananas are not ripe and they are yellow, not red.\n6. Therefore, the statement that the bananas are ripe and red is incorrect.\n</think>\n<answer>\nNo, the bananas to the left of the bags are not ripe and red; they are yellow and unripe.",
+    "pred_think": "1. The image shows a market scene with various items for sale.\n2. There is a display of bananas at the front of the market.\n3. The bananas are described as being yellow and unripe.\n4. The question asks if the bananas are ripe and red.\n5. Based on the description, the bananas are not ripe and they are yellow, not red.\n6. Therefore, the statement that the bananas are ripe and red is incorrect.",
+    "pred_answer": "",
+    "is_correct": 0
+  },
+  {
+    "instruction": "\n### Question:\nPlease answer based on the image content: On which side of the image is the dark cup?",
+    "gt_answer": "Right",
+    "prediction_raw": "<think>\nTo determine which side of the image the dark cup is on, I need to identify the position of both cups. The image shows two cups, one white and one dark. The white cup is positioned closer to the center of the image, while the dark cup is located towards the right edge of the image. Therefore, the dark cup is on the right side of the image.\n</think>\n<answer>\nThe dark cup is on the right side of the image.",
+    "pred_think": "To determine which side of the image the dark cup is on, I need to identify the position of both cups. The image shows two cups, one white and one dark. The white cup is positioned closer to the center of the image, while the dark cup is located towards the right edge of the image. Therefore, the dark cup is on the right side of the image.",
+    "pred_answer": "",
+    "is_correct": 0
+  },
+  {
+    "instruction": "\n### Question:\nPlease answer based on the image content: Are there both bananas and snacks in the picture?",
+    "gt_answer": "No",
+    "prediction_raw": "<think>\n1. The image shows a market scene with various items for sale.\n2. There are multiple bunches of bananas displayed prominently.\n3. Additionally, there is a box labeled \"PREMIUM BANANAS\" which suggests that bananas are being sold as snacks.\n4. The presence of bananas and the snack box indicates that both items are available for purchase at this market stall.\n</think>\n<answer>\nYes, there are both bananas and snacks in the picture.",
+    "pred_think": "1. The image shows a market scene with various items for sale.\n2. There are multiple bunches of bananas displayed prominently.\n3. Additionally, there is a box labeled \"PREMIUM BANANAS\" which suggests that bananas are being sold as snacks.\n4. The presence of bananas and the snack box indicates that both items are available for purchase at this market stall.",
+    "pred_answer": "",
+    "is_correct": 0
+  },
+  {
+    "instruction": "\n### Question:\nPlease answer based on the image content: What's on the shelf?",
+    "gt_answer": "Bananas",
+    "prediction_raw": "<think>\nThe image shows a market scene with various items for sale. The most prominent item is bananas displayed in multiple bunches. There are also other fruits and vegetables visible, but bananas are the primary focus. The bananas are arranged in different sections, including hanging from hooks and placed on shelves. The presence of a person wearing a black jacket with a fur-lined hood suggests that they might be a vendor or customer at the market.\n</think>\n<answer>\nThere are bananas on the shelf. They are displayed in multiple bunches, both hanging from hooks and placed on shelves.",
+    "pred_think": "The image shows a market scene with various items for sale. The most prominent item is bananas displayed in multiple bunches. There are also other fruits and vegetables visible, but bananas are the primary focus. The bananas are arranged in different sections, including hanging from hooks and placed on shelves. The presence of a person wearing a black jacket with a fur-lined hood suggests that they might be a vendor or customer at the market.",
+    "pred_answer": "",
+    "is_correct": 0
+  },
+  {
+    "instruction": "\n### Question:\nPlease answer based on the image content: Which kind of clothing is black?",
+    "gt_answer": "Shirt",
+    "prediction_raw": "<think>\nThe man is wearing a black shirt underneath his green jacket. The shirt is visible through the jacket, indicating that it is black.\n</think>\n<answer>\nThe black clothing is the man's black shirt.",
+    "pred_think": "The man is wearing a black shirt underneath his green jacket. The shirt is visible through the jacket, indicating that it is black.",
+    "pred_answer": "",
+    "is_correct": 0
+  },
+  {
+    "instruction": "\n### Question:\nPlease answer based on the image content: What is the device to the left of the device on the right?",
+    "gt_answer": "Laptop",
+    "prediction_raw": "<think>\nThe question asks for the device to the left of the device on the right. In the image, there is a laptop computer on the left side of the desk, and a power strip on the right side of the desk. Therefore, the device to the left of the device on the right is the laptop computer.\n</think>\n<answer>\nThe device to the left of the device on the right is the laptop computer.",
+    "pred_think": "The question asks for the device to the left of the device on the right. In the image, there is a laptop computer on the left side of the desk, and a power strip on the right side of the desk. Therefore, the device to the left of the device on the right is the laptop computer.",
+    "pred_answer": "",
+    "is_correct": 0
+  },
+  {
+    "instruction": "\n### Question:\nPlease answer based on the image content: Is the stuffed dog in the bottom or in the top part?",
+    "gt_answer": "Bottom",
+    "prediction_raw": "<think>\nThe question asks about the location of the stuffed dog. In the image, there is a stuffed dog located at the bottom right corner of the picture. The television screen shows a scene where a man is sitting in front of it, and the stuffed dog is positioned below him, closer to the floor.\n</think>\n<answer>\nThe stuffed dog is in the bottom part of the image.",
+    "pred_think": "The question asks about the location of the stuffed dog. In the image, there is a stuffed dog located at the bottom right corner of the picture. The television screen shows a scene where a man is sitting in front of it, and the stuffed dog is positioned below him, closer to the floor.",
+    "pred_answer": "",
+    "is_correct": 0
+  },
+  {
+    "instruction": "\n### Question:\nPlease answer based on the image content: Do you see any surfboards to the right of the man on the right?",
+    "gt_answer": "No",
+    "prediction_raw": "<think>\n1. The question asks if there are surfboards to the right of the man on the right.\n2. I need to identify the man on the right side of the image.\n3. The man is standing near the wall, wearing shorts and a black shirt.\n4. I should look for surfboards positioned to the right of this man.\n5. There are several surfboards visible in the image, but they are not directly adjacent to the man.\n6. The closest surfboard to the man is the one that is slightly to his left.\n7. Therefore, there are no surfboards to the right of the man on the right.\n</think>\n<answer>\nNo, there are no surfboards to the right of the man on the right.",
+    "pred_think": "1. The question asks if there are surfboards to the right of the man on the right.\n2. I need to identify the man on the right side of the image.\n3. The man is standing near the wall, wearing shorts and a black shirt.\n4. I should look for surfboards positioned to the right of this man.\n5. There are several surfboards visible in the image, but they are not directly adjacent to the man.\n6. The closest surfboard to the man is the one that is slightly to his left.\n7. Therefore, there are no surfboards to the right of the man on the right.",
+    "pred_answer": "",
+    "is_correct": 0
+  },
+  {
+    "instruction": "\n### Question:\nPlease answer based on the image content: Is the black sign above the window?",
+    "gt_answer": "Yes",
+    "prediction_raw": "<think>\nThe question asks if the black sign is above the window. To determine this, I need to identify both the black sign and the window in the image. The black sign appears to be a traffic sign, possibly indicating a right turn, as it has a white arrow pointing to the right. The window is visible behind the sign, but it's not directly under the sign. Therefore, the black sign is not above the window; it is positioned next to the window.\n</think>\n<answer>\nNo, the black sign is not above the window. It is positioned next to the window.",
+    "pred_think": "The question asks if the black sign is above the window. To determine this, I need to identify both the black sign and the window in the image. The black sign appears to be a traffic sign, possibly indicating a right turn, as it has a white arrow pointing to the right. The window is visible behind the sign, but it's not directly under the sign. Therefore, the black sign is not above the window; it is positioned next to the window.",
+    "pred_answer": "",
+    "is_correct": 0
+  },
+  {
+    "instruction": "\n### Question:\nPlease answer based on the image content: Is the drawer large and white?",
+    "gt_answer": "No",
+    "prediction_raw": "<think>\nThe question asks if the drawer is large and white. Let's analyze the image:\n\n1. **Identify the drawer**: The image shows a kitchen setting with cabinets and drawers.\n2. **Check for size**: The drawer appears to be medium-sized compared to the other cabinets.\n3. **Check for color**: The drawer is white, matching the other white cabinets.\n\nBased on this analysis, the drawer is not large but is white.\n</think>\n<answer>\nNo, the drawer is not large; it is white.",
+    "pred_think": "The question asks if the drawer is large and white. Let's analyze the image:\n\n1. **Identify the drawer**: The image shows a kitchen setting with cabinets and drawers.\n2. **Check for size**: The drawer appears to be medium-sized compared to the other cabinets.\n3. **Check for color**: The drawer is white, matching the other white cabinets.\n\nBased on this analysis, the drawer is not large but is white.",
+    "pred_answer": "",
+    "is_correct": 0
+  }
+]
