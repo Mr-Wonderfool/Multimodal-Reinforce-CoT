@@ -255,50 +255,18 @@ class SupervisedFineTuning(BaseVLM):
 
             def extract_answer_and_think(text: str):
                 m_t = re.search(r"<think>\s*(.*?)\s*</think>", text, flags=re.S|re.I)
-                # 改进的 <answer> 提取逻辑
-                m_a = re.search(r"<answer>(.*?)(?:</answer>|$)", text, flags=re.S|re.I)
-                pred_answer = m_a.group(1).strip() if m_a else ""
+                m_a = re.search(r"<answer>\s*(.*?)\s*</answer>", text, flags=re.S|re.I)
                 pred_think = m_t.group(1).strip() if m_t else ""
+                pred_answer = m_a.group(1).strip() if m_a else ""
                 return pred_think, pred_answer
 
 
             def norm(s: str):
                 return re.sub(r"\s+", " ", s.strip().lower())
-            
-            def is_answer_match(pred_answer: str, gt_answer: str) -> bool:
-                """检查预测答案是否包含真实答案的关键词（不区分大小写）"""
-                # 标准化：转小写 + 去除标点
-                pred_clean = re.sub(r'[^\w\s]', '', pred_answer.lower())
-                gt_clean = re.sub(r'[^\w\s]', '', gt_answer.lower())
-                    # 近义词映射表（可根据需求扩展）
-                synonyms = {
-                    # 否定类
-                    "no": {"no", "not", "false", "nope", "negative"},
-                    # 肯定类
-                    "yes": {"yes", "true", "correct", "yep", "positive"},
-                    # 方向类（示例）
-                    "left": {"left", "west"},
-                    "right": {"right", "east"},
-                    # 颜色类（示例）
-                    "red": {"red", "crimson"},
-                }
 
-                # 检查直接匹配
-                if gt_clean == pred_clean:
-                    return True
-
-    # 检查近义词匹配（包括反向映射）
-    for word in {gt_clean, pred_clean}:
-        if word in synonyms:
-            if gt_clean in synonyms[word] and pred_clean in synonyms[word]:
-                return True
-    
-                # 检查 gt_clean 是否在 pred_clean 中（作为单词）
-                return gt_clean in pred_clean.split()  # 按空格分词后匹配
-
-            for img_id,gt_ans, pred_text, instr in zip(image_ids,answers, output_texts, user_prompts):
+            for gt_ans, pred_text, instr in zip(answers, output_texts, user_prompts):
                 pred_think, pred_ans = extract_answer_and_think(pred_text)
-                is_correct = int(is_answer_match(pred_ans, gt_ans))  # 使用新逻辑
+                is_correct = int(norm(pred_ans) == norm(gt_ans))
 
                 total_correct += is_correct
                 total_count += 1
