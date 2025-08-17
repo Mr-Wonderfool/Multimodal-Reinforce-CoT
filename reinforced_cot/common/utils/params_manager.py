@@ -7,6 +7,7 @@ class ParamsManager:
     """
     A utility class for managing and processing nested YAML configuration files.
     """
+
     @classmethod
     def parse(cls, config_file: str) -> dict:
         """

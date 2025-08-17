@@ -31,7 +31,7 @@ class SupervisedFineTuning(BaseVLM):
         self.model = AutoModelForVision2Seq.from_pretrained(
             sft_config["model_path"], quantization_config=quantization_config
         )
-        self.tokenizer = self.processor.tokenizer  
+        self.tokenizer = self.processor.tokenizer
         # apply LoRA configuration if specified
         if "lora" in sft_config:
             if self.accelerator.is_main_process:
@@ -44,16 +44,18 @@ class SupervisedFineTuning(BaseVLM):
                 self.logger.INFO("LoRA applied successfully.")
                 self.model.print_trainable_parameters()
 
-        (self.train_dataset, self.train_dataloader), (self.val_dataset, self.val_dataloader), (self.test_dataset, self.test_dataloader) = (
-            DatasetPreprocessor.prepare_datasets_and_data_loaders(
-                args=sft_config, accelerator=self.accelerator, processor=self.processor
-            )
+        (
+            (self.train_dataset, self.train_dataloader),
+            (self.val_dataset, self.val_dataloader),
+            (self.test_dataset, self.test_dataloader),
+        ) = DatasetPreprocessor.prepare_datasets_and_data_loaders(
+            args=sft_config, accelerator=self.accelerator, processor=self.processor
         )
 
         self.n_epochs = self.train_config["n_epochs"]
         self.max_input_length = sft_config["max_input_length"]
         self.max_response_length = sft_config["max_response_length"]
-        
+
         num_training_steps = (
             len(self.train_dataloader) // self.accelerator.num_processes * self.n_epochs
         ) // sft_config["gradient_accumulation_steps"]
@@ -190,7 +192,7 @@ class SupervisedFineTuning(BaseVLM):
             self.recorder.close()
 
     def evaluate(self, tag: str = None):
-    # def evaluate(self, tag: str = None, use_val=False):
+        # def evaluate(self, tag: str = None, use_val=False):
         self.model.eval()
         # dataloader = self.val_dataloader if use_val and self.val_dataloader is not None else self.test_dataloader
 
@@ -199,26 +201,27 @@ class SupervisedFineTuning(BaseVLM):
 
         local_log_samples = []
 
-        for batch in tqdm(
-            self.test_dataloader, disable=not self.accelerator.is_main_process, desc="Eval Loop"
-        ):
+        for batch in tqdm(self.test_dataloader, disable=not self.accelerator.is_main_process, desc="Eval Loop"):
             image_ids = batch.get("image_id", [None] * len(images))  # 假设 batch 可能包含 "image_id"
-            images = batch["images"]           # list[PIL.Image] 或 tensor
+            images = batch["images"]  # list[PIL.Image] 或 tensor
             sys_prompts = batch["system_prompt"]
             user_prompts = batch["user_prompt"]  # list[str]
-            answers = batch["answers"]             # list[str]
+            answers = batch["answers"]  # list[str]
 
             messages_batch = []
             for img, instr, sp in zip(images, user_prompts, sys_prompts):
-                messages_batch.append([
-                {"role": "system", "content": sp},
-                {"role": "user",
-                 "content": [
-                    {"type": "image", "image": img},
-                    {"type": "text", "text": instr},
-                ]},
-            ])
-
+                messages_batch.append(
+                    [
+                        {"role": "system", "content": sp},
+                        {
+                            "role": "user",
+                            "content": [
+                                {"type": "image", "image": img},
+                                {"type": "text", "text": instr},
+                            ],
+                        },
+                    ]
+                )
 
             # 用processor得到输入
             text_batch = [
@@ -231,7 +234,7 @@ class SupervisedFineTuning(BaseVLM):
                 padding="max_length",
                 max_length=self.max_input_length,
                 truncation=True,
-                return_tensors="pt"
+                return_tensors="pt",
             )
             model_inputs = {k: v.to(self.accelerator.device) for k, v in model_inputs.items()}
 
@@ -244,74 +247,43 @@ class SupervisedFineTuning(BaseVLM):
                     max_new_tokens=self.max_response_length,
                     pad_token_id=self.processor.tokenizer.pad_token_id,
                     eos_token_id=self.processor.tokenizer.eos_token_id,
-                    bad_words_ids=bad_words_ids
+                    bad_words_ids=bad_words_ids,
                 )
-    
+
             # 只取生成段
-            gen_only = output_ids[:, model_inputs["input_ids"].shape[1]:]
+            gen_only = output_ids[:, model_inputs["input_ids"].shape[1] :]
             output_texts = self.processor.batch_decode(
                 gen_only, skip_special_tokens=True, clean_up_tokenization_spaces=True
             )
 
             def extract_answer_and_think(text: str):
-                m_t = re.search(r"<think>\s*(.*?)\s*</think>", text, flags=re.S|re.I)
-                # 改进的 <answer> 提取逻辑
-                m_a = re.search(r"<answer>(.*?)(?:</answer>|$)", text, flags=re.S|re.I)
-                pred_answer = m_a.group(1).strip() if m_a else ""
+                m_t = re.search(r"<think>\s*(.*?)\s*</think>", text, flags=re.S | re.I)
+                m_a = re.search(r"<answer>\s*(.*?)\s*</answer>", text, flags=re.S | re.I)
                 pred_think = m_t.group(1).strip() if m_t else ""
+                pred_answer = m_a.group(1).strip() if m_a else ""
                 return pred_think, pred_answer
-
 
             def norm(s: str):
                 return re.sub(r"\s+", " ", s.strip().lower())
-            
-            def is_answer_match(pred_answer: str, gt_answer: str) -> bool:
-                """检查预测答案是否包含真实答案的关键词（不区分大小写）"""
-                # 标准化：转小写 + 去除标点
-                pred_clean = re.sub(r'[^\w\s]', '', pred_answer.lower())
-                gt_clean = re.sub(r'[^\w\s]', '', gt_answer.lower())
-                    # 近义词映射表（可根据需求扩展）
-                synonyms = {
-                    # 否定类
-                    "no": {"no", "not", "false", "nope", "negative"},
-                    # 肯定类
-                    "yes": {"yes", "true", "correct", "yep", "positive"},
-                    # 方向类（示例）
-                    "left": {"left", "west"},
-                    "right": {"right", "east"},
-                    # 颜色类（示例）
-                    "red": {"red", "crimson"},
-                }
 
-                # 检查直接匹配
-                if gt_clean == pred_clean:
-                    return True
-
-    # 检查近义词匹配（包括反向映射）
-    for word in {gt_clean, pred_clean}:
-        if word in synonyms:
-            if gt_clean in synonyms[word] and pred_clean in synonyms[word]:
-                return True
-    
-                # 检查 gt_clean 是否在 pred_clean 中（作为单词）
-                return gt_clean in pred_clean.split()  # 按空格分词后匹配
-
-            for img_id,gt_ans, pred_text, instr in zip(image_ids,answers, output_texts, user_prompts):
+            for img_id, gt_ans, pred_text, instr in zip(image_ids, answers, output_texts, user_prompts):
                 pred_think, pred_ans = extract_answer_and_think(pred_text)
-                is_correct = int(is_answer_match(pred_ans, gt_ans))  # 使用新逻辑
+                is_correct = int(norm(pred_ans) == norm(gt_ans))
 
                 total_correct += is_correct
                 total_count += 1
 
-                local_log_samples.append({
-                    "image_id": img_id,
-                    "instruction": instr,
-                    "gt_answer": gt_ans,
-                    "prediction_raw": pred_text,   # 原始整段生成
-                    "pred_think": pred_think,      # 抽取的思维链
-                    "pred_answer": pred_ans,       # 抽取的答案
-                    "is_correct": is_correct
-                })
+                local_log_samples.append(
+                    {
+                        "image_id": img_id,
+                        "instruction": instr,
+                        "gt_answer": gt_ans,
+                        "prediction_raw": pred_text,  # 原始整段生成
+                        "pred_think": pred_think,  # 抽取的思维链
+                        "pred_answer": pred_ans,  # 抽取的答案
+                        "is_correct": is_correct,
+                    }
+                )
 
         # 分布式结果聚合
         results_tensor = torch.tensor([total_correct, total_count], dtype=torch.float32, device=self.accelerator.device)
@@ -332,7 +304,6 @@ class SupervisedFineTuning(BaseVLM):
 
             accuracy = global_correct / global_total if global_total > 0 else 0.0
         return accuracy
- 
 
     def __str__(self):
         return "SFT"
@@ -340,8 +311,8 @@ class SupervisedFineTuning(BaseVLM):
     @classmethod
     def load(cls, model_path: str, base_model_path: str = None, device: str = "cuda"):
         """
-         Loads a Qwen2.5-VL model and processor from the specified path.
-         Supports both full models and LoRA adapters.
+        Loads a Qwen2.5-VL model and processor from the specified path.
+        Supports both full models and LoRA adapters.
         """
         processor = AutoProcessor.from_pretrained(model_path)
 
@@ -358,15 +329,14 @@ class SupervisedFineTuning(BaseVLM):
                 base_model_path, torch_dtype=torch.bfloat16, device_map={"": device}
             )
 
-        
             model = PeftModel.from_pretrained(model, model_path)
             print("##### Successfully loaded LoRA adapter. #####")
 
         else:
             print(f"##### No LoRA adapter detected. Loading full model from {model_path}. #####")
             model = AutoModelForVision2Seq.from_pretrained(
-                 model_path, torch_dtype=torch.bfloat16, device_map={"": device}
-           )
+                model_path, torch_dtype=torch.bfloat16, device_map={"": device}
+            )
             print("##### Successfully loaded full model. #####")
 
         model.eval()

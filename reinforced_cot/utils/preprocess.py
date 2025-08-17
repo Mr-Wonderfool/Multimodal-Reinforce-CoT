@@ -37,13 +37,13 @@ class MultiModalQwenDataset(Dataset):
             full_messages = [
                 {"role": "system", "content": sys_prompt},
                 {"role": "user", "content": [{"type": "image", "image": image}, {"type": "text", "text": user_prompt}]},
-                {"role": "assistant", "content": [{"type": "text", "text": assistant_response}]}
+                {"role": "assistant", "content": [{"type": "text", "text": assistant_response}]},
             ]
             add_gen = False
         else:
             full_messages = [
                 {"role": "system", "content": sys_prompt},
-                {"role": "user", "content": [{"type": "image", "image": image}, {"type": "text", "text": user_prompt}]}
+                {"role": "user", "content": [{"type": "image", "image": image}, {"type": "text", "text": user_prompt}]},
             ]
             add_gen = True
 
@@ -58,8 +58,8 @@ class MultiModalQwenDataset(Dataset):
         )
 
         prompt_only_messages = [
-            {"role": "system", "content": sys_prompt}, 
-            {"role": "user", "content": [{"type": "image", "image": image}, {"type": "text", "text": user_prompt}]}
+            {"role": "system", "content": sys_prompt},
+            {"role": "user", "content": [{"type": "image", "image": image}, {"type": "text", "text": user_prompt}]},
         ]
         prompt_text = self.processor.apply_chat_template(
             prompt_only_messages, tokenize=False, add_generation_prompt=True
@@ -90,7 +90,7 @@ class MultiModalQwenDataset(Dataset):
 
 # 多模态数据预处理器
 class DatasetPreprocessor:
-    
+
     INSTRUCTION = (
         "You are an expert visual reasoning assistant. "
         "You will be provided with an image and some questions related to its content. "
@@ -145,7 +145,7 @@ class DatasetPreprocessor:
                 image_dir=img_dir,
                 processor=processor,
                 max_length=max_length,
-                split=split_name,  
+                split=split_name,
             )
             return dataset, batch_size
 
@@ -157,7 +157,7 @@ class DatasetPreprocessor:
         def collate_fn(batch):
             out = {}
             for k in batch[0].keys():
-            # 明确指定哪些字段是字符串/图片类型，需要保持列表形式
+                # 明确指定哪些字段是字符串/图片类型，需要保持列表形式
                 if k in ("images", "user_prompt", "answers", "system_prompt"):
                     out[k] = [b[k] for b in batch]
                 else:
@@ -169,7 +169,6 @@ class DatasetPreprocessor:
                         # 对于非张量非字符串类型，也以列表形式保存
                         out[k] = [b[k] for b in batch]
             return out
-
 
         train_dataloader = DataLoader(
             train_dataset,
