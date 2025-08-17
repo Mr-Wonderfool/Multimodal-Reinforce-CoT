@@ -1,4 +1,5 @@
 import os
+import re
 import json
 import torch
 from tqdm import tqdm
@@ -155,14 +156,16 @@ class SupervisedFineTuning(BaseVLM):
             for epoch in t:
                 epoch_result_dict = self._train_one_epoch()
                 curr_loss = sum(epoch_result_dict["loss"]) / len(epoch_result_dict["loss"])
-                if epoch % self.evaluating_epoch_freq == 0:
+
+
+                # 只在最后一轮进行评估
+                if epoch == self.n_epochs:  # 检查是否是最后一轮
                     curr_pass_rate = self.evaluate(tag=str(epoch))
                     if self.accelerator.is_main_process:
-                        # record pass rates
                         self.recorder.record("test/pass_rate", curr_pass_rate, step=self.global_step)
                     # model saving
                     if epoch % self.saving_epoch_freq == 0:
-                        # Make sure all processes have the same pass_rate before checking
+                        # Make acceleratorsure all processes have the same pass_rate before checking
                         self.accelerator.wait_for_everyone()
                         if curr_pass_rate > best_pass_rate:
                             best_pass_rate = curr_pass_rate
@@ -189,6 +192,7 @@ class SupervisedFineTuning(BaseVLM):
             self.recorder.close()
 
     def evaluate(self, tag: str = None):
+    # def evaluate(self, tag: str = None, use_val=False):
         self.model.eval()
         # dataloader = self.val_dataloader if use_val and self.val_dataloader is not None else self.test_dataloader
 
@@ -201,22 +205,27 @@ class SupervisedFineTuning(BaseVLM):
             self.test_dataloader, disable=not self.accelerator.is_main_process, desc="Eval Loop"
         ):
             images = batch["images"]           # list[PIL.Image] 或 tensor
-            instructions = batch["instructions"]  # list[str]
+            sys_prompts = batch["system_prompt"]
+            user_prompts = batch["user_prompt"]  # list[str]
             answers = batch["answers"]             # list[str]
-            messages_batch = [
-                {
-                    "role": "user",
-                    "content": [
-                        {"type": "image", "image": img},
-                        {"type": "text", "text": instr}
-                    ]
-                }
-                for img, instr in zip(images, instructions)
-            ]
+
+            messages_batch = []
+            for img, instr, sp in zip(images, user_prompts, sys_prompts):
+                messages_batch.append([
+                {"role": "system", "content": sp},
+                {"role": "user",
+                 "content": [
+                    {"type": "image", "image": img},
+                    {"type": "text", "text": instr},
+                ]},
+            ])
 
 
             # 用processor得到输入
-            text_batch = [self.processor.apply_chat_template([msg], tokenize=False, add_generation_prompt=True) for msg in messages_batch]
+            text_batch = [
+                self.processor.apply_chat_template(msg, tokenize=False, add_generation_prompt=True)
+                for msg in messages_batch
+            ]
             model_inputs = self.processor(
                 text=text_batch,
                 images=images,
@@ -227,31 +236,48 @@ class SupervisedFineTuning(BaseVLM):
             )
             model_inputs = {k: v.to(self.accelerator.device) for k, v in model_inputs.items()}
 
+            bad_words_ids = self.processor.tokenizer(["<tool_call>"], add_special_tokens=False).input_ids
+
             with torch.no_grad():
-                output_ids = self.model.generate(
+                unwrapped_model = self.accelerator.unwrap_model(self.model)
+                output_ids = unwrapped_model.generate(
                     **model_inputs,
                     max_new_tokens=self.max_response_length,
                     pad_token_id=self.processor.tokenizer.pad_token_id,
                     eos_token_id=self.processor.tokenizer.eos_token_id,
+                    bad_words_ids=bad_words_ids
                 )
-            # 解码输出
-            output_texts = self.processor.batch_decode(output_ids, skip_special_tokens=True, clean_up_tokenization_spaces=True)
+    
+            # 只取生成段
+            gen_only = output_ids[:, model_inputs["input_ids"].shape[1]:]
+            output_texts = self.processor.batch_decode(
+                gen_only, skip_special_tokens=True, clean_up_tokenization_spaces=True
+            )
 
-            # 逐条判分（字符串比较，可按实际需要自定义）
-            for i, (gt_ans, pred_text, instr) in enumerate(zip(answers, output_texts, instructions)):
-                gt_ans_clean = gt_ans.strip().lower()
-                pred_clean = pred_text.strip().lower()
+            def extract_answer_and_think(text: str):
+                m_t = re.search(r"<think>\s*(.*?)\s*</think>", text, flags=re.S|re.I)
+                m_a = re.search(r"<answer>\s*(.*?)\s*</answer>", text, flags=re.S|re.I)
+                pred_think = m_t.group(1).strip() if m_t else ""
+                pred_answer = m_a.group(1).strip() if m_a else ""
+                return pred_think, pred_answer
 
-                # 简单包含式判分，也可做模糊匹配或后处理
-                is_correct = int(gt_ans_clean in pred_clean)
+
+            def norm(s: str):
+                return re.sub(r"\s+", " ", s.strip().lower())
+
+            for gt_ans, pred_text, instr in zip(answers, output_texts, user_prompts):
+                pred_think, pred_ans = extract_answer_and_think(pred_text)
+                is_correct = int(norm(pred_ans) == norm(gt_ans))
+
                 total_correct += is_correct
                 total_count += 1
 
-                # log样本
                 local_log_samples.append({
                     "instruction": instr,
                     "gt_answer": gt_ans,
-                    "prediction": pred_text,
+                    "prediction_raw": pred_text,   # 原始整段生成
+                    "pred_think": pred_think,      # 抽取的思维链
+                    "pred_answer": pred_ans,       # 抽取的答案
                     "is_correct": is_correct
                 })
 
