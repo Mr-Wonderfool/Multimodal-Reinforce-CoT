@@ -4,7 +4,7 @@ machine_rank: 0
 main_training_function: main
 mixed_precision: bf16
 num_machines: 1
-num_processes: 1
+num_processes: 2
 deepspeed_config:
   # train_batch_size = num_processes * train_micro_batch_size_per_gpu * gradient_accumulation_steps
   train_micro_batch_size_per_gpu: 1
@@ -12,7 +12,7 @@ deepspeed_config:
   gradient_clipping: 1.0
 
   zero_optimization:
-    stage: 2
+    stage: 3
     # Enable CPU Offload for optimizer states and params to save VRAM
     offload_optimizer:
       device: cpu

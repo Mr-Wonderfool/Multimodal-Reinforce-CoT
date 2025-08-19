@@ -1,0 +1,53 @@
+GRPO:
+  model_path: ../../../qwen/Qwen2.5-VL-3B-Instruct
+  tokenizer_path: ../../../qwen/Qwen2.5-VL-3B-Instruct
+  sft_model_path: ../../models/20250806_164859_SFT/ckpt/epoch_6_loss_0.72
+  log_dir: ../../logs
+  image_dir: ../../../data/multimodal_cot/images
+  num_workers: 4
+  max_input_length: 2048
+  max_response_length: 1024
+  gradient_accumulation_steps: 2
+  # whether to apply quantization
+  quantization: true
+
+  pipeline:
+    train:
+      seed: 42
+      logging_epoch_freq: 1
+      saving_epoch_freq: 1
+      train_file: ../../../data/multimodal_cot/train_datnl
+      batch_size: 1a.jsonl
+      batch_size: 1
+      n_epochs: 2
+      gradient_steps: 4
+      clip_grad_norm: 10.0
+      # kl penalty method. 'kl' is standard. 'full' is the exact KL, but slower
+      kl_penalty: kl
+      # use an adaptive KL controller for more stable training
+      adap_kl_ctrl: true
+      init_kl_coef: 0.1
+      optimizer:
+        learning_rate: 1.0e-5
+        weight_decay: 0.01
+    val:
+      val_file: ../../../data/multimodal_cot/dev_data.jso
+    test:
+      test_file: ../../../data/multimodal_cot/test.jsonl
+      batch_size: 1
+      evaluating_epoch_freq: 1
+
+  lora:
+    r: 4
+    lora_alpha: 16
+    target_modules:
+      - q_proj
+      - k_proj
+      - v_proj
+      # - o_proj
+      # - gate_proj
+      # - up_proj
+      # - down_proj
+    lora_dropout: 0.05
+    bias: none
+    task_type: CAUSAL_LM

@@ -1,28 +1,23 @@
 # ! /bin/bash
-# srun -p L40 -J xzm_reinforce_cot -N 1 --ntasks-per-node=1 -w gpu4009 --gres=gpu:l40:3 --cpus-per-task=18 --pty /bin/bash
+# srun -p L40 -J xzm_reinforce_cot -N 1 --ntasks-per-node=1 -w gpu4010 --gres=gpu:l40:2 --cpus-per-task=12 --pty /bin/bash
 export TOKENIZERS_PARALLELISM=True
 
-# 自动定位项目根目录并切换
-SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
-PROJECT_ROOT=$(dirname $(dirname "$SCRIPT_DIR"))
-cd "$PROJECT_ROOT"
-echo "Current working directory has been changed to: $(pwd)"
+# Get the absolute path to the workspace root directory
+WS_ROOT=$(dirname $(dirname $(dirname $(realpath $0))))
 
-# 更新所有文件路径为相对于项目根目录的路径
-# "configs/fsdp.yaml" "configs/deepspeed2_sft.yaml"
-deepspeed_config_file="configs/deepspeed2_sft.yaml"
-training_config_file="configs/rl_finetune.yaml"
-main_script_path="reinforced_cot/main.py"
+deepspeed_config_file="$WS_ROOT/configs/deepspeed/deepspeed_grpo.yaml"
+training_config_file="$WS_ROOT/configs/train/grpo.yaml"
+main_script_path="$WS_ROOT/reinforced_cot/main.py"
 
-training_stage="ppo"
-num_processes='4'
-main_process_port='8889'
+training_stage="grpo"
+num_processes='2'
+main_process_port='8888'
 
-echo "Starting ${training_stage} experiment...."
+echo "Starting sft experiment ...."
 accelerate launch \
         --config_file "${deepspeed_config_file}" \
         --num_processes=${num_processes} \
         --main_process_port=${main_process_port} \
-        "${main_script_path}" \
+        "${main_script_path}"  \
         --stage ${training_stage} \
         --config_path ${training_config_file}
