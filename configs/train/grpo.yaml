@@ -4,6 +4,7 @@ GRPO:
   sft_model_path: ../../models/20250806_164859_SFT/ckpt/epoch_6_loss_0.72
   log_dir: ../../logs
   image_dir: ../../../data/multimodal_cot/images
+  test_image_dir: ../../../data/multimodal_cot/test_images
   num_workers: 4
   max_input_length: 2048
   max_response_length: 1024
@@ -16,8 +17,7 @@ GRPO:
       seed: 42
       logging_epoch_freq: 1
       saving_epoch_freq: 1
-      train_file: ../../../data/multimodal_cot/train_datnl
-      batch_size: 1a.jsonl
+      train_file: ../../../data/multimodal_cot/train_data.jsonl
       batch_size: 1
       n_epochs: 2
       gradient_steps: 4
@@ -31,15 +31,15 @@ GRPO:
         learning_rate: 1.0e-5
         weight_decay: 0.01
     val:
-      val_file: ../../../data/multimodal_cot/dev_data.jso
+      val_file: ../../../data/multimodal_cot/dev_data.jsonl
     test:
       test_file: ../../../data/multimodal_cot/test.jsonl
       batch_size: 1
       evaluating_epoch_freq: 1
 
   lora:
-    r: 4
-    lora_alpha: 16
+    r: 128
+    lora_alpha: 256
     target_modules:
       - q_proj
       - k_proj
