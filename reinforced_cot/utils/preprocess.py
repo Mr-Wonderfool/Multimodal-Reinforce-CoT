@@ -79,10 +79,12 @@ class MultiModalQwenDataset(Dataset):
 
         # 仅在评估/测试时保留原信息
         if self.split in ("val", "test"):
+            out["image_id"] = item.get("imageId", None)  # 新增 image_id 字段
             out["images"] = image
             out["system_prompt"] = sys_prompt
             out["user_prompt"] = user_prompt
             out["answers"] = item.get("answer", "")
+
 
         return out
 
@@ -168,7 +170,6 @@ class DatasetPreprocessor:
                         # 对于非张量非字符串类型，也以列表形式保存
                         out[k] = [b[k] for b in batch]
             return out
-
 
         train_dataloader = DataLoader(
             train_dataset,

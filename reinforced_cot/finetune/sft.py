@@ -1,5 +1,4 @@
 import os
-import re
 import json
 import torch
 from tqdm import tqdm
@@ -10,7 +9,7 @@ from peft import get_peft_model, LoraConfig, PeftModel
 from transformers import AutoProcessor, AutoModelForVision2Seq, BitsAndBytesConfig, get_linear_schedule_with_warmup
 
 from reinforced_cot.common import BaseVLM
-from reinforced_cot.utils.preprocess import DatasetPreprocessor
+from reinforced_cot.utils import DatasetPreprocessor, AnswerProcessor
 
 
 class SupervisedFineTuning(BaseVLM):
@@ -156,8 +155,6 @@ class SupervisedFineTuning(BaseVLM):
             for epoch in t:
                 epoch_result_dict = self._train_one_epoch()
                 curr_loss = sum(epoch_result_dict["loss"]) / len(epoch_result_dict["loss"])
-
-
                 # 只在最后一轮进行评估
                 if epoch == self.n_epochs:  # 检查是否是最后一轮
                     curr_pass_rate = self.evaluate(tag=str(epoch))
@@ -197,6 +194,7 @@ class SupervisedFineTuning(BaseVLM):
         # dataloader = self.val_dataloader if use_val and self.val_dataloader is not None else self.test_dataloader
 
         total_correct = 0
+        total_consist=0
         total_count = 0
 
         local_log_samples = []
@@ -208,6 +206,7 @@ class SupervisedFineTuning(BaseVLM):
             sys_prompts = batch["system_prompt"]
             user_prompts = batch["user_prompt"]  # list[str]
             answers = batch["answers"]             # list[str]
+            image_ids = batch.get("image_id", [None] * len(images))  # 假设 batch 可能包含 "image_id"
 
             messages_batch = []
             for img, instr, sp in zip(images, user_prompts, sys_prompts):
@@ -254,53 +253,45 @@ class SupervisedFineTuning(BaseVLM):
                 gen_only, skip_special_tokens=True, clean_up_tokenization_spaces=True
             )
 
-            def extract_answer_and_think(text: str):
-                m_t = re.search(r"<think>\s*(.*?)\s*</think>", text, flags=re.S|re.I)
-                m_a = re.search(r"<answer>\s*(.*?)\s*</answer>", text, flags=re.S|re.I)
-                pred_think = m_t.group(1).strip() if m_t else ""
-                pred_answer = m_a.group(1).strip() if m_a else ""
-                return pred_think, pred_answer
-
-
-            def norm(s: str):
-                return re.sub(r"\s+", " ", s.strip().lower())
-
-            for gt_ans, pred_text, instr in zip(answers, output_texts, user_prompts):
-                pred_think, pred_ans = extract_answer_and_think(pred_text)
-                is_correct = int(norm(pred_ans) == norm(gt_ans))
+            for img_id,gt_ans, pred_text, instr in zip(image_ids,answers, output_texts, user_prompts):
+                pred_think, pred_ans = AnswerProcessor.extract_answer_and_cot(pred_text)
+                is_correct = int(AnswerProcessor.is_match(pred_ans, gt_ans))
+                is_consist = int(AnswerProcessor.is_match(pred_think, gt_ans)) if is_correct == 1 else 0
 
                 total_correct += is_correct
+                total_consist += is_consist
                 total_count += 1
 
                 local_log_samples.append({
+                    "image_id": img_id,
                     "instruction": instr,
                     "gt_answer": gt_ans,
                     "prediction_raw": pred_text,   # 原始整段生成
                     "pred_think": pred_think,      # 抽取的思维链
                     "pred_answer": pred_ans,       # 抽取的答案
-                    "is_correct": is_correct
+                    "is_correct": is_correct,
+                    "is_consist": is_consist
                 })
 
         # 分布式结果聚合
-        results_tensor = torch.tensor([total_correct, total_count], dtype=torch.float32, device=self.accelerator.device)
+        results_tensor = torch.tensor([total_correct, total_consist, total_count], dtype=torch.float32, device=self.accelerator.device)
         if torch.distributed.is_initialized():
             torch.distributed.all_reduce(results_tensor, op=torch.distributed.ReduceOp.SUM)
-        global_correct, global_total = int(results_tensor[0].item()), int(results_tensor[1].item())
+        global_correct, global_consist, global_total = int(results_tensor[0].item()), int(results_tensor[1].item()), int(results_tensor[2].item())
 
         # 日志保存，只在主进程
         if self.accelerator.is_main_process:
             accuracy = global_correct / global_total if global_total > 0 else 0.0
+            consistency = global_consist / global_correct if global_correct > 0 else 0.0
             json_path = "eval_samples.json" if not tag else f"eval_samples_{tag}.json"
             if local_log_samples:
                 res_path = os.path.join(self.logger.result_dir, json_path)
                 with open(res_path, "w", encoding="utf-8") as f:
                     json.dump(local_log_samples, f, indent=2, ensure_ascii=False)
                 self.logger.INFO(f"Saved {len(local_log_samples)} evaluation samples to {res_path}")
-            self.logger.INFO(f"Evaluation accuracy: {accuracy:.4f}")
-
-            accuracy = global_correct / global_total if global_total > 0 else 0.0
+                self.logger.INFO(f"Evaluation accuracy: {accuracy:.4f}")
+                self.logger.INFO(f"Consistent samples percentage: {consistency:.4f}")
         return accuracy
- 
 
     def __str__(self):
         return "SFT"
