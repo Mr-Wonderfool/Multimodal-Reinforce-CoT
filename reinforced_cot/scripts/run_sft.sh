@@ -1,5 +1,6 @@
 # ! /bin/bash
-# srun -p L40 -J xzm_reinforce_cot -N 1 --ntasks-per-node=1 -w gpu4009 --gres=gpu:l40:3 --cpus-per-task=18 --pty /bin/bash
+# srun -p L40 -J xzm_reinforce_cot -N 1 --ntasks-per-node=1 -w gpu4005 --gres=gpu:l40:2 --cpus-per-task=12 --pty /bin/bash
+# srun -p A800 -J xzm_reinforce_cot -N 1 --ntasks-per-node=1 -w gpu8002 --gres=gpu:a800:1 --cpus-per-task=6 --pty /bin/bash
 export TOKENIZERS_PARALLELISM=True
 
 # Get the absolute path to the workspace root directory
