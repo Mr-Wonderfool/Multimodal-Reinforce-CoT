@@ -155,14 +155,14 @@ class SupervisedFineTuning(BaseVLM):
             for epoch in t:
                 epoch_result_dict = self._train_one_epoch()
                 curr_loss = sum(epoch_result_dict["loss"]) / len(epoch_result_dict["loss"])
-                # 只在最后一轮进行评估
-                if epoch == self.n_epochs:  # 检查是否是最后一轮
+        
+                should_eval = (epoch % self.evaluating_epoch_freq == 0) or (epoch == self.n_epochs)
+                if should_eval:
                     curr_pass_rate = self.evaluate(tag=str(epoch))
                     if self.accelerator.is_main_process:
                         self.recorder.record("test/pass_rate", curr_pass_rate, step=self.global_step)
-                    # model saving
+
                     if epoch % self.saving_epoch_freq == 0:
-                        # Make acceleratorsure all processes have the same pass_rate before checking
                         self.accelerator.wait_for_everyone()
                         if curr_pass_rate > best_pass_rate:
                             best_pass_rate = curr_pass_rate
@@ -172,7 +172,7 @@ class SupervisedFineTuning(BaseVLM):
                                     f"epoch_{epoch}_loss_{curr_loss:.2f}_pass_{curr_pass_rate:.2f}",
                                 )
                                 self.logger.INFO(
-                                    f"New best model found at epoch {epoch} with loss {curr_loss:.4f} and pass rate: {curr_pass_rate}. Saving to {save_path} ..."
+                                f"New best model found at epoch {epoch} with loss {curr_loss:.4f} and pass rate: {curr_pass_rate:.2f}. Saving to {save_path} ..."
                                 )
                                 self.save(save_path)
                                 self.logger.INFO(f"Finish saving model to {save_path}")
