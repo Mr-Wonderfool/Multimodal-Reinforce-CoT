@@ -279,10 +279,9 @@ class SupervisedFineTuning(BaseVLM):
             torch.distributed.all_reduce(results_tensor, op=torch.distributed.ReduceOp.SUM)
         global_correct, global_consist, global_total = int(results_tensor[0].item()), int(results_tensor[1].item()), int(results_tensor[2].item())
 
-        # 日志保存，只在主进程
+        accuracy = global_correct / global_total if global_total > 0 else 0.0
+        consistency = global_consist / global_correct if global_correct > 0 else 0.0
         if self.accelerator.is_main_process:
-            accuracy = global_correct / global_total if global_total > 0 else 0.0
-            consistency = global_consist / global_correct if global_correct > 0 else 0.0
             json_path = "eval_samples.json" if not tag else f"eval_samples_{tag}.json"
             if local_log_samples:
                 res_path = os.path.join(self.logger.result_dir, json_path)

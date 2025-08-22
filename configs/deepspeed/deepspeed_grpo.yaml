@@ -8,7 +8,7 @@ num_processes: 2
 deepspeed_config:
   # train_batch_size = num_processes * train_micro_batch_size_per_gpu * gradient_accumulation_steps
   train_micro_batch_size_per_gpu: 1
-  gradient_accumulation_steps: 1
+  gradient_accumulation_steps: 2
   gradient_clipping: 1.0
 
   zero_optimization:

@@ -13,5 +13,5 @@ tqdm>=4.66.0
 scipy
 tensorboardX
 protobuf
-# vllm==0.4.2
-# trl
+vllm==0.10.1
+trl==0.21.0

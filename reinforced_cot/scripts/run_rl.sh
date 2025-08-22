@@ -13,7 +13,7 @@ training_stage="grpo"
 num_processes='2'
 main_process_port='8888'
 
-echo "Starting sft experiment ...."
+echo "Starting GRPO experiment ...."
 accelerate launch \
         --config_file "${deepspeed_config_file}" \
         --num_processes=${num_processes} \

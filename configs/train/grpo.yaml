@@ -1,45 +1,79 @@
 GRPO:
-  model_path: ../../../qwen/Qwen2.5-VL-3B-Instruct
-  tokenizer_path: ../../../qwen/Qwen2.5-VL-3B-Instruct
-  sft_model_path: ../../models/20250806_164859_SFT/ckpt/epoch_6_loss_0.72
-  log_dir: ../../logs
+  model_path: ../../../qwen/qwen-merged-sft
+  tokenizer_path: ../../../qwen/qwen-merged-sft
+  # merge sft model before training and load raw weights (instead of adapters) during training
+  sft_model_path: ../../logs/20250819_134722_SFT/ckpt/epoch_12_loss_1.07_pass_0.05
   image_dir: ../../../data/multimodal_cot/images
   test_image_dir: ../../../data/multimodal_cot/test_images
-  num_workers: 4
-  max_input_length: 2048
-  max_response_length: 1024
+  # directory for custom logging
+  log_dir: ../../logs
+
+  # it seems quantization is not compatible with vllm
+  quantization: false
+
+  # ------ parameter adopted from trl.GRPOConfig ------
+  dataloader_num_workers: 4
+  report_to: tensorboard
+  output_dir: ../../../qwen/
+  logging_dir: ../../logs
+
+  max_prompt_length: 2048
+  max_completion_length: 768
+  # ! sync this with deepspeed configuration
   gradient_accumulation_steps: 2
-  # whether to apply quantization
-  quantization: true
+  # whether use page attention to speed up inference
+  use_vllm: true
+  vllm_mode: colocate
+
+  # avoid messing with custom dataset
+  remove_unused_columns: false
+
+  vllm_gpu_memory_utilization: 0.6
 
   pipeline:
     train:
-      seed: 42
-      logging_epoch_freq: 1
-      saving_epoch_freq: 1
       train_file: ../../../data/multimodal_cot/train_data.jsonl
-      batch_size: 1
-      n_epochs: 2
-      gradient_steps: 4
-      clip_grad_norm: 10.0
-      # kl penalty method. 'kl' is standard. 'full' is the exact KL, but slower
-      kl_penalty: kl
-      # use an adaptive KL controller for more stable training
-      adap_kl_ctrl: true
-      init_kl_coef: 0.1
+      do_train: true
+      per_device_train_batch_size: 2
+      seed: 42
+      logging_steps: 10
+      log_level: info
+      # total number of training steps
+      num_train_epochs: 3
+      # number of iterations for minimizing the objective
+      num_iterations: 8
+      # number of groups, should be factor of effective batch size
+      num_generations: 6
+      # number of batch data to sample per training iteration
+      steps_per_generation: 6
+      # KL weight, if set to 0.0 the reference model will not be loaded
+      beta: 0.05
+      # importance sampling level, can be 'token' or 'sequence'
+      importance_sampling_level: token
+      # whether divide reward by std
+      scale_rewards: true
+      # loss type, 'bnpo' or 'dr_grpo'
+      loss_type: bnpo
+      # reference model configuration
+      sync_ref_model: false
+      # ratio of training before saving the model
+      save_steps: 0.4
       optimizer:
         learning_rate: 1.0e-5
         weight_decay: 0.01
     val:
+      do_eval: false
       val_file: ../../../data/multimodal_cot/dev_data.jsonl
     test:
+      do_predict: false
       test_file: ../../../data/multimodal_cot/test.jsonl
       batch_size: 1
       evaluating_epoch_freq: 1
 
+  # ! this section will be discarded if training continues on SFT weights
   lora:
-    r: 128
-    lora_alpha: 256
+    r: 64
+    lora_alpha: 128
     target_modules:
       - q_proj
       - k_proj

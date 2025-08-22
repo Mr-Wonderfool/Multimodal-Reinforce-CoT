@@ -11,7 +11,7 @@ training_config_file="$WS_ROOT/configs/train/sft.yaml"
 main_script_path="$WS_ROOT/reinforced_cot/main.py"
 
 training_stage="sft"
-num_processes='1'
+num_processes='2'
 main_process_port='8888'
 
 echo "Starting sft experiment ...."

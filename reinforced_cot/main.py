@@ -1,7 +1,7 @@
 import argparse
 
+from reinforced_cot.finetune.grpo import GRPOTrainerWrapper
 from reinforced_cot.finetune.sft import SupervisedFineTuning
-from reinforced_cot.finetune.grpo import GroupRelativePolicyOptimization
 from reinforced_cot.common.utils.params_manager import ParamsManager
 
 
@@ -12,11 +12,18 @@ def main(args):
     if args.stage.lower() == "sft":
         trainer = SupervisedFineTuning(config)
     elif args.stage.lower() == "grpo":
-        trainer = GroupRelativePolicyOptimization(config)
+        trainer = GRPOTrainerWrapper(config)
     else:
         raise ValueError(f"Unknown training stage: {args.stage}. Please choose from 'sft', 'ppo'.")
 
     trainer.train()
+
+    # from reinforced_cot.finetune.helper import merge_sft_adapter
+    # merge_sft_adapter(
+    #     base_model_path=config["model_path"],
+    #     sft_adapter_path="/home/michael.xu2/Projects/Multimodal-Reinforce-CoT/tmp/20250822_130756_SFT/ckpt/epoch_6_loss_1.97_pass_0.48",
+    #     output_path="/home/michael.xu2/Projects/qwen/qwen-merged-sft",
+    # )
 
 
 if __name__ == "__main__":
@@ -25,7 +32,7 @@ if __name__ == "__main__":
         "--stage",
         type=str,
         required=True,
-        choices=["sft", "ppo"],
+        choices=["sft", "grpo"],
         help="The training stage to run.",
     )
     parser.add_argument(
