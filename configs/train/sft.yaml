@@ -29,7 +29,7 @@ SFT:
     test:
       test_file: ../../../data/multimodal_cot/test.jsonl
       batch_size: 1
-      evaluating_epoch_freq: 1
+      evaluating_epoch_freq: 2
 
   lora:
     r: 128
