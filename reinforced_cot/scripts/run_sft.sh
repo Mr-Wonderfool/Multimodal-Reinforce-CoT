@@ -1,5 +1,4 @@
 # ! /bin/bash
-# srun -p A800 -J xzm_reinforce_cot -N 1 --ntasks-per-node=1 -w gpu8007 --gres=gpu:a800:1 --cpus-per-task=6 --pty /bin/bash
 
 export TOKENIZERS_PARALLELISM=True
 

@@ -1,40 +1,15 @@
-### 任务流程
-1. 在[GQA数据集](https://cs.stanford.edu/people/dorarad/gqa/download.html)基础上，增加思维链
-2. SFT使得[Qwen2.5-VL-3B-Instruct](https://huggingface.co/Qwen/Qwen2.5-VL-3B-Instruct)接收图片和问题作为输入，输出思维链和最终的答案
-3. 针对思维链模式改进GRPO，促进模型推理能力的涌现
+### 成员分工
+2251075周文迪
+   1. 训练/测试集构建与清洗；评测标准与评测逻辑设计与实现；
+   2. 报告章节：数据集介绍；思维链质量评估；
 
-### 7.26任务梳理
-1. 数据集部分
-   * [ ] （周）调用Qwen2.5-VL-72B-Instruct的API，通过设计的提示词模板，获取针对问题的思维链，最终的数据集应该包括`image_id`图片编号、`cot`问题的思维链、`answer`针对问题的答案。同时需要准备好训练集和测试集。
-   * [ ] （周）设计思维链评估指标和流程。
-   * [ ] （周）将一部分数据集上传到服务器，注意文件组织，从数据集中的`image_id`找到图片的绝对路径写到数据集中。
-   * [ ] （脱）写数据集预处理代码，可以参考`reinforced_cot/utils/preprocess.py`，重点包括：加上合适的提示词（You are an expert in visual language ...）、按照Qwen2.5-VL-3B-Instruct的要求形成输入。
-   * [ ] （徐）把Qwen2.5-VL-3B-Instruct上传到服务器，修改配置文件中模型和数据集路径。
-2. SFT部分
-   * [ ] （脱）修改`reinforced_cot/finetune/sft.py`，适配Qwen2.5-VL-3B-Instruct（注意使用4-bit量化减小显存）。
-   * [ ] （脱）运行SFT，得到初步损失收敛曲线，并保存权重。
-   * [ ] （脱）写模型推理逻辑，适配Qwen2.5-VL-3B-Instruct模型。
-   * [ ] （周）根据推理接口和数据集，书写模型在制定测试集上的评测流程，参照GQA评测标准。
-3. GRPO部分
-   * [ ] （徐）设计基于规则的、适配CoT的回报函数。
-   * [ ] （徐）先基于`trl[vllm]`标准库实现GRPO训练，再自行书写训练函数。
-   * [ ] （徐）加载SFT模型并与当前策略模型计算KL损失，融合基于规则的回报。
-   * [ ] （徐）实现GRPO训练流程并初步得到损失收敛曲线，保存权重。
-   * [ ] （周）评测SFT和GRPO模型，负责分析模型输出的区别。
-4. 评测部分
-   1. 正确性指标，模型给出的答案（在`<answer>`中）与正确答案是否一致
-   2. 思维连指标，例如semantic str是否在CoT中完全出现
-   3. 思维链和答案一致性指标，思维链中的输出与答案是否矛盾
+2253375脱智淼
+   1. 数据预处理（preprocess）；SFT监督微调算法实现与训练；在自建数据集上完成指令微调，得到模型版本 V1；
+   2. 报告章节：项目背景；监督微调；SFT实验结果；总结与展望；
+   3. 完成评测脚本：eval_train_subset.py、eval_test.py；
 
-### 协作注意事项
-- 格式化程序统一选择`black-formatter`，且配置为：
-```json
-"[python]": {
-    "editor.defaultFormatter": "ms-python.black-formatter"
-  },
-  "black-formatter.args": [
-        "--line-length",
-        "120"
-    ],
-```
-- Git commit书写规范参考[这篇文章](https://blog.csdn.net/2301_79602429/article/details/145437838?spm=1011.2124.3001.6209)
+2251804徐志铭
+   1. 整体分工与进度协调；
+   2. 改进版GRPO的设计与实现；完成强化学习阶段训练，得到模型版本V2（在V1基础上进行优化）；
+   3. 报告：GRPO算法部分；SFT/GRPO评估结果对比分析；总结与展望。
+

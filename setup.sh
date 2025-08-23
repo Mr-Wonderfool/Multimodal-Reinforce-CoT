@@ -1,6 +1,4 @@
 # ! /bin/bash
-# conda create -n xzm-qwen-finetune python=3.10 -y
-# conda activate xzm-qwen-finetune
 
 # set up python packages
 echo "----- installing python packages -----"

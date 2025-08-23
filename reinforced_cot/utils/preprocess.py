@@ -175,7 +175,6 @@ class DatasetPreprocessor:
         # def collate_fn(batch):
         #     out = {}
         #     for k in batch[0].keys():
-        #         # 这些键保持 list
         #         if k in ("images", "user_prompt", "instructions", "answers", "system_prompt"):
         #             out[k] = [b[k] for b in batch]
         #         else:
@@ -184,7 +183,7 @@ class DatasetPreprocessor:
         #                 try:
         #                     out[k] = torch.stack([b[k] for b in batch])
         #                 except RuntimeError:
-        #                     # 尺寸不一致，改为 list（评测阶段一般不会用到这些张量）
+        #                     # 尺寸不一致，改为 list
         #                     out[k] = [b[k] for b in batch]
         #             else:
         #                 out[k] = [b[k] for b in batch]
