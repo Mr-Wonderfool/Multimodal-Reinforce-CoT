@@ -2,7 +2,7 @@ import os
 import torch
 from PIL import Image
 from datasets import Dataset
-from peft import LoraConfig, PeftModel
+from peft import LoraConfig
 from transformers import AutoProcessor, AutoModelForVision2Seq, BitsAndBytesConfig
 from trl import GRPOConfig, GRPOTrainer
 
@@ -95,7 +95,7 @@ class GRPOTrainerWrapper(BaseVLM):
     def train(self):
         if self.accelerator.is_main_process:
             self.logger.INFO("---- Starting GRPO Training ----")
-        self.trainer.train(resume_from_checkpoint="/home/michael.xu2/Projects/qwen/checkpoint-9000")
+        self.trainer.train()
         # save the model after full training
         self.save()
 
@@ -103,9 +103,9 @@ class GRPOTrainerWrapper(BaseVLM):
         if self.accelerator.is_main_process:
             # Create a specific path for the final model within the main output directory
             final_save_path = os.path.join(self.grpo_config.output_dir, "final_checkpoint")
-            self.logger.info(f"--- Training finished. Saving final model adapter to {final_save_path} ---")
+            self.logger.INFO(f"--- Training finished. Saving final model adapter to {final_save_path} ---")
             self.trainer.save_model(final_save_path)
-            self.logger.info(f"Model adapter saved successfully.")
+            self.logger.INFO(f"Model adapter saved successfully.")
 
     def __str__(self):
         return "GRPO"

@@ -37,13 +37,13 @@ class MultiModalQwenDataset(Dataset):
             full_messages = [
                 {"role": "system", "content": sys_prompt},
                 {"role": "user", "content": [{"type": "image", "image": image}, {"type": "text", "text": user_prompt}]},
-                {"role": "assistant", "content": [{"type": "text", "text": assistant_response}]}
+                {"role": "assistant", "content": [{"type": "text", "text": assistant_response}]},
             ]
             add_gen = False
         else:
             full_messages = [
                 {"role": "system", "content": sys_prompt},
-                {"role": "user", "content": [{"type": "image", "image": image}, {"type": "text", "text": user_prompt}]}
+                {"role": "user", "content": [{"type": "image", "image": image}, {"type": "text", "text": user_prompt}]},
             ]
             add_gen = True
 
@@ -58,8 +58,8 @@ class MultiModalQwenDataset(Dataset):
         )
 
         prompt_only_messages = [
-            {"role": "system", "content": sys_prompt}, 
-            {"role": "user", "content": [{"type": "image", "image": image}, {"type": "text", "text": user_prompt}]}
+            {"role": "system", "content": sys_prompt},
+            {"role": "user", "content": [{"type": "image", "image": image}, {"type": "text", "text": user_prompt}]},
         ]
         prompt_text = self.processor.apply_chat_template(
             prompt_only_messages, tokenize=False, add_generation_prompt=True
@@ -85,13 +85,12 @@ class MultiModalQwenDataset(Dataset):
             out["user_prompt"] = user_prompt
             out["answers"] = item.get("answer", "")
 
-
         return out
 
 
 # 多模态数据预处理器
 class DatasetPreprocessor:
-    
+
     INSTRUCTION = (
         "You are an expert visual reasoning assistant. "
         "You will be provided with an image and some questions related to its content. "
@@ -146,7 +145,7 @@ class DatasetPreprocessor:
                 image_dir=img_dir,
                 processor=processor,
                 max_length=max_length,
-                split=split_name,  
+                split=split_name,
             )
             return dataset, batch_size
 
@@ -155,19 +154,37 @@ class DatasetPreprocessor:
             val_dataset, batch_size_val = _prepare_split("val")
             test_dataset, batch_size_test = _prepare_split("test")
 
+        # def collate_fn(batch):
+        #     out = {}
+        #     for k in batch[0].keys():
+        #         # 明确指定哪些字段是字符串/图片类型，需要保持列表形式
+        #         if k in ("images", "user_prompt", "answers", "system_prompt"):
+        #             out[k] = [b[k] for b in batch]
+        #         else:
+        #             # 对其他字段，确保它们是张量后再堆叠
+        #             # 增加类型检查以避免错误
+        #             if isinstance(batch[0][k], torch.Tensor):
+        #                 out[k] = torch.stack([b[k] for b in batch])
+        #             else:
+        #                 # 对于非张量非字符串类型，也以列表形式保存
+        #                 out[k] = [b[k] for b in batch]
+        #     return out
+
         def collate_fn(batch):
             out = {}
             for k in batch[0].keys():
-            # 明确指定哪些字段是字符串/图片类型，需要保持列表形式
-                if k in ("images", "user_prompt", "answers", "system_prompt"):
+                # 这些键保持 list
+                if k in ("images", "user_prompt", "instructions", "answers", "system_prompt"):
                     out[k] = [b[k] for b in batch]
                 else:
-                    # 对其他字段，确保它们是张量后再堆叠
-                    # 增加类型检查以避免错误
-                    if isinstance(batch[0][k], torch.Tensor):
-                        out[k] = torch.stack([b[k] for b in batch])
+                    v0 = batch[0][k]
+                    if isinstance(v0, torch.Tensor):
+                        try:
+                            out[k] = torch.stack([b[k] for b in batch])
+                        except RuntimeError:
+                            # 尺寸不一致，改为 list（评测阶段一般不会用到这些张量）
+                            out[k] = [b[k] for b in batch]
                     else:
-                        # 对于非张量非字符串类型，也以列表形式保存
                         out[k] = [b[k] for b in batch]
             return out
 
