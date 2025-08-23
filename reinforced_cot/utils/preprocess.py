@@ -154,39 +154,41 @@ class DatasetPreprocessor:
             val_dataset, batch_size_val = _prepare_split("val")
             test_dataset, batch_size_test = _prepare_split("test")
 
-        # def collate_fn(batch):
-        #     out = {}
-        #     for k in batch[0].keys():
-        #         # 明确指定哪些字段是字符串/图片类型，需要保持列表形式
-        #         if k in ("images", "user_prompt", "answers", "system_prompt"):
-        #             out[k] = [b[k] for b in batch]
-        #         else:
-        #             # 对其他字段，确保它们是张量后再堆叠
-        #             # 增加类型检查以避免错误
-        #             if isinstance(batch[0][k], torch.Tensor):
-        #                 out[k] = torch.stack([b[k] for b in batch])
-        #             else:
-        #                 # 对于非张量非字符串类型，也以列表形式保存
-        #                 out[k] = [b[k] for b in batch]
-        #     return out
-
+        # for training
         def collate_fn(batch):
             out = {}
             for k in batch[0].keys():
-                # 这些键保持 list
-                if k in ("images", "user_prompt", "instructions", "answers", "system_prompt"):
+                # 明确指定哪些字段是字符串/图片类型，需要保持列表形式
+                if k in ("images", "user_prompt", "answers", "system_prompt"):
                     out[k] = [b[k] for b in batch]
                 else:
-                    v0 = batch[0][k]
-                    if isinstance(v0, torch.Tensor):
-                        try:
-                            out[k] = torch.stack([b[k] for b in batch])
-                        except RuntimeError:
-                            # 尺寸不一致，改为 list（评测阶段一般不会用到这些张量）
-                            out[k] = [b[k] for b in batch]
+                    # 对其他字段，确保它们是张量后再堆叠
+                    # 增加类型检查以避免错误
+                    if isinstance(batch[0][k], torch.Tensor):
+                        out[k] = torch.stack([b[k] for b in batch])
                     else:
+                        # 对于非张量非字符串类型，也以列表形式保存
                         out[k] = [b[k] for b in batch]
             return out
+
+        # for evaluation
+        # def collate_fn(batch):
+        #     out = {}
+        #     for k in batch[0].keys():
+        #         # 这些键保持 list
+        #         if k in ("images", "user_prompt", "instructions", "answers", "system_prompt"):
+        #             out[k] = [b[k] for b in batch]
+        #         else:
+        #             v0 = batch[0][k]
+        #             if isinstance(v0, torch.Tensor):
+        #                 try:
+        #                     out[k] = torch.stack([b[k] for b in batch])
+        #                 except RuntimeError:
+        #                     # 尺寸不一致，改为 list（评测阶段一般不会用到这些张量）
+        #                     out[k] = [b[k] for b in batch]
+        #             else:
+        #                 out[k] = [b[k] for b in batch]
+        #     return out
 
         train_dataloader = DataLoader(
             train_dataset,
