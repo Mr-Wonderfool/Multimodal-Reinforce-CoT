@@ -29,10 +29,10 @@ python xxx/eval_train_subset.py \
   --sample_ratio 0.2 \
   --batch_size 8 \
 ```
----config_path：SFT配置路径；
----ckpt_dir：LoRA权重目录；
----sample_ratio：从训练集抽样比例，默认0.2。脚本会将该子集写入临时jsonl并把它作为评测集；
----batch_size：评测批次大小，默认8。
+- --config_path：SFT配置路径；
+--ckpt_dir：LoRA权重目录；
+--sample_ratio：从训练集抽样比例，默认0.2。脚本会将该子集写入临时jsonl并把它作为评测集；
+--batch_size：评测批次大小，默认8。
 
 ## 完整测试集评测
 用于在配置里的 全量测试集 上评估最佳权重，给出阶段性最终指标。
@@ -43,7 +43,7 @@ python xxx/eval_test.py \
   --ckpt_dir outputs/sft_lora_best \
   --batch_size 8
 ```
----config_path：SFT配置路径；
----ckpt_dir：LoRA权重目录；
----batch_size：评测批次大小，默认8。
+--config_path：SFT配置路径；
+--ckpt_dir：LoRA权重目录；
+--batch_size：评测批次大小，默认8。
 
