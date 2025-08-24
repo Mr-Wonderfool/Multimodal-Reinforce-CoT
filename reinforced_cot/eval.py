@@ -1,7 +1,6 @@
 import argparse
 
-from reinforced_cot.finetune.grpo import GRPOEvaluator
-from reinforced_cot.finetune.sft import SupervisedFineTuning
+from reinforced_cot.finetune.helper import Evaluator
 from reinforced_cot.common.utils.params_manager import ParamsManager
 
 
@@ -9,14 +8,8 @@ def main(args):
     config = ParamsManager.parse(args.config_path)
     config = config[args.stage.upper()]
 
-    if args.stage.lower() == "sft":
-        evaluator = SupervisedFineTuning(config)
-    elif args.stage.lower() == "grpo":
-        evaluator = GRPOEvaluator(config)
-    else:
-        raise ValueError(f"Unknown training stage: {args.stage}. Please choose from 'sft', 'ppo'.")
-
-    evaluator.evaluate()
+    evaluator = Evaluator(config=config)
+    evaluator.evaluate(tag=args.stage.upper())
 
 
 if __name__ == "__main__":
