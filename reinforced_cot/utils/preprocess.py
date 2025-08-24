@@ -7,25 +7,22 @@ from torch.utils.data import DataLoader
 from .utils import load_jsonl
 
 
-# 每一条数据的读取与格式化，同时加载图片和文本内容
 class MultiModalQwenDataset(Dataset):
     def __init__(self, data_list, image_dir, processor, max_length=1024, split="train"):
-        self.samples = data_list  # 样本列表
-        self.image_dir = image_dir  # 图片目录
-        self.processor = processor  # Qwen的AutoProcessor对象
-        self.max_length = max_length  # 最大长度
+        self.samples = data_list
+        self.image_dir = image_dir
+        self.processor = processor
+        self.max_length = max_length
         self.split = split
 
     def __len__(self):
         return len(self.samples)
 
     def __getitem__(self, idx):
-        # 根据索引读取一条数据
         item = self.samples[idx]
         image_path = os.path.join(self.image_dir, f"{item['imageId']}.jpg")
         image = Image.open(image_path).convert("RGB")
 
-        # 统一使用 instruction 字段
         instruction = item.get("instruction", item.get("question", ""))
         sys_prompt = DatasetPreprocessor.INSTRUCTION
         user_prompt = DatasetPreprocessor.QUESTION_TRIGGER + instruction
@@ -71,15 +68,13 @@ class MultiModalQwenDataset(Dataset):
             labels = model_inputs["input_ids"].clone()
             labels[0, :prompt_length] = DatasetPreprocessor.LABEL_PAD_TOKEN_ID
         else:
-            # 测试集不计算 loss
             labels = torch.full_like(model_inputs["input_ids"], DatasetPreprocessor.LABEL_PAD_TOKEN_ID)
 
         out = {k: v.squeeze(0) for k, v in model_inputs.items()}
         out["labels"] = labels.squeeze(0)
 
-        # 仅在评估/测试时保留原信息
         if self.split in ("val", "test"):
-            out["image_id"] = item.get("imageId", None)  # 新增 image_id 字段
+            out["image_id"] = item.get("imageId", None)
             out["images"] = image
             out["system_prompt"] = sys_prompt
             out["user_prompt"] = user_prompt
@@ -88,7 +83,6 @@ class MultiModalQwenDataset(Dataset):
         return out
 
 
-# 多模态数据预处理器
 class DatasetPreprocessor:
 
     INSTRUCTION = (
@@ -114,11 +108,7 @@ class DatasetPreprocessor:
     LABEL_PAD_TOKEN_ID = -100
 
     @classmethod
-    def prepare_datasets_and_data_loaders(cls, args, accelerator, processor):
-        """
-        对应Qwen2.5-VL多模态场景，args需包含train/val/test的jsonl和图片目录。
-        支持只传train/val或者train/test，也支持三者全传。
-        """
+    def prepare_datasets_and_data_loaders(cls, args, accelerator, processor, evaluate: bool = False):
         max_length = args.get("max_input_length", 1024)
         num_workers = args.get("num_workers", 0)
 
@@ -155,39 +145,36 @@ class DatasetPreprocessor:
             test_dataset, batch_size_test = _prepare_split("test")
 
         # for training
-        def collate_fn(batch):
+        def collate_fn_train(batch):
             out = {}
             for k in batch[0].keys():
-                # 明确指定哪些字段是字符串/图片类型，需要保持列表形式
                 if k in ("images", "user_prompt", "answers", "system_prompt"):
                     out[k] = [b[k] for b in batch]
                 else:
-                    # 对其他字段，确保它们是张量后再堆叠
-                    # 增加类型检查以避免错误
                     if isinstance(batch[0][k], torch.Tensor):
                         out[k] = torch.stack([b[k] for b in batch])
                     else:
-                        # 对于非张量非字符串类型，也以列表形式保存
                         out[k] = [b[k] for b in batch]
             return out
 
         # for evaluation
-        # def collate_fn(batch):
-        #     out = {}
-        #     for k in batch[0].keys():
-        #         if k in ("images", "user_prompt", "instructions", "answers", "system_prompt"):
-        #             out[k] = [b[k] for b in batch]
-        #         else:
-        #             v0 = batch[0][k]
-        #             if isinstance(v0, torch.Tensor):
-        #                 try:
-        #                     out[k] = torch.stack([b[k] for b in batch])
-        #                 except RuntimeError:
-        #                     # 尺寸不一致，改为 list
-        #                     out[k] = [b[k] for b in batch]
-        #             else:
-        #                 out[k] = [b[k] for b in batch]
-        #     return out
+        def collate_fn_eval(batch):
+            out = {}
+            for k in batch[0].keys():
+                if k in ("images", "user_prompt", "instructions", "answers", "system_prompt"):
+                    out[k] = [b[k] for b in batch]
+                else:
+                    v0 = batch[0][k]
+                    if isinstance(v0, torch.Tensor):
+                        try:
+                            out[k] = torch.stack([b[k] for b in batch])
+                        except RuntimeError:
+                            out[k] = [b[k] for b in batch]
+                    else:
+                        out[k] = [b[k] for b in batch]
+            return out
+
+        collate_fn = collate_fn_eval if evaluate else collate_fn_train
 
         train_dataloader = DataLoader(
             train_dataset,
@@ -220,7 +207,6 @@ class DatasetPreprocessor:
                 collate_fn=collate_fn,
             )
 
-        # 返回全部数据集与加载器
         return (
             (train_dataset, train_dataloader),
             (val_dataset, val_dataloader),

@@ -14,9 +14,9 @@ from reinforced_cot.utils import DatasetPreprocessor
 
 
 class GRPOTrainerWrapper(BaseVLM):
-    def __init__(self, grpo_config: dict):
-        super().__init__(grpo_config)
-        custom_config, grpo_config, lora_config = GRPOTrainerConfig.construct_config(grpo_config)
+    def __init__(self, config: dict):
+        super().__init__(config)
+        custom_config, grpo_config, lora_config = GRPOTrainerConfig.construct_config(config)
         self.grpo_config = GRPOConfig(**grpo_config)
         self.custom_config = custom_config
         if lora_config is not None:

@@ -1,10 +1,8 @@
 GRPO:
   model_path: ../../../qwen/qwen-merged-sft
   tokenizer_path: ../../../qwen/qwen-merged-sft
-  # merge sft model before training and load raw weights (instead of adapters) during training
-  sft_model_path: ../../logs/20250819_134722_SFT/ckpt/epoch_12_loss_1.07_pass_0.05
   # for evaluation only
-  grpo_model_path: ../../../qwen/final_checkpoint
+  lora_adapter_path: ../../../qwen/final_checkpoint
   image_dir: ../../../data/multimodal_cot/images
   test_image_dir: ../../../data/multimodal_cot/test_images
   # directory for custom logging

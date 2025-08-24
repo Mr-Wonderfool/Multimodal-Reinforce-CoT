@@ -5,8 +5,8 @@ SFT:
   image_dir: ../../../data/multimodal_cot/images
   test_image_dir: ../../../data/multimodal_cot/test_images
   num_workers: 4
-  max_input_length: 2048
-  max_response_length: 1024
+  max_prompt_length: 2048
+  max_completion_length: 1024
   gradient_accumulation_steps: 2
   # whether to apply quantization
   quantization: true

@@ -16,12 +16,11 @@ class GRPOTrainerConfig:
         custom_keys = [
             "model_path",
             "tokenizer_path",
-            "sft_model_path",
             "image_dir",
             "test_image_dir",
             "quantization",
             "log_dir",
-            "grpo_model_path",
+            "lora_adapter_path",
         ]
         pipeline_config = grpo_config.pop("pipeline")
         if "lora" in grpo_config:

@@ -18,12 +18,17 @@ def main(args):
 
     trainer.train()
 
-    # from reinforced_cot.finetune.helper import merge_sft_adapter
-    # merge_sft_adapter(
-    #     base_model_path=config["model_path"],
-    #     sft_adapter_path="/home/michael.xu2/Projects/Multimodal-Reinforce-CoT/tmp/20250822_130756_SFT/ckpt/epoch_6_loss_1.97_pass_0.48",
-    #     output_path="/home/michael.xu2/Projects/qwen/qwen-merged-sft",
-    # )
+
+def merge_weights(args):
+    from reinforced_cot.finetune.helper import merge_sft_adapter
+
+    config = ParamsManager.parse(args.config_path)
+    config = config[args.stage.upper()]
+    merge_sft_adapter(
+        base_model_path=config["model_path"],
+        sft_adapter_path="/home/michael.xu2/Projects/Multimodal-Reinforce-CoT/tmp/20250822_130756_SFT/ckpt/epoch_6_loss_1.97_pass_0.48",
+        output_path="/home/michael.xu2/Projects/qwen/qwen-merged-sft",
+    )
 
 
 if __name__ == "__main__":

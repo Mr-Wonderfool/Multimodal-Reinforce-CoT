@@ -2,14 +2,13 @@ import os
 import json
 import torch
 from tqdm import tqdm
-import torch.distributed
 from torch.optim import AdamW
 from collections import defaultdict
-from peft import get_peft_model, LoraConfig, PeftModel
+from peft import get_peft_model, LoraConfig
 from transformers import AutoProcessor, AutoModelForVision2Seq, BitsAndBytesConfig, get_linear_schedule_with_warmup
 
 from reinforced_cot.common import BaseVLM
-from reinforced_cot.utils import DatasetPreprocessor, AnswerProcessor
+from reinforced_cot.utils import DatasetPreprocessor
 
 
 class SupervisedFineTuning(BaseVLM):
@@ -25,12 +24,11 @@ class SupervisedFineTuning(BaseVLM):
                 bnb_4bit_compute_dtype=torch.bfloat16,
             )
 
-        # 加载多模态processor和模型
         self.processor = AutoProcessor.from_pretrained(sft_config["tokenizer_path"])
         self.model = AutoModelForVision2Seq.from_pretrained(
             sft_config["model_path"], quantization_config=quantization_config
         )
-        self.tokenizer = self.processor.tokenizer  
+        self.tokenizer = self.processor.tokenizer
         # apply LoRA configuration if specified
         if "lora" in sft_config:
             if self.accelerator.is_main_process:
@@ -43,16 +41,18 @@ class SupervisedFineTuning(BaseVLM):
                 self.logger.INFO("LoRA applied successfully.")
                 self.model.print_trainable_parameters()
 
-        (self.train_dataset, self.train_dataloader), (self.val_dataset, self.val_dataloader), (self.test_dataset, self.test_dataloader) = (
-            DatasetPreprocessor.prepare_datasets_and_data_loaders(
-                args=sft_config, accelerator=self.accelerator, processor=self.processor
-            )
+        (
+            (self.train_dataset, self.train_dataloader),
+            (self.val_dataset, self.val_dataloader),
+            (self.test_dataset, self.test_dataloader),
+        ) = DatasetPreprocessor.prepare_datasets_and_data_loaders(
+            args=sft_config, accelerator=self.accelerator, processor=self.processor
         )
 
         self.n_epochs = self.train_config["n_epochs"]
-        self.max_input_length = sft_config["max_input_length"]
-        self.max_response_length = sft_config["max_response_length"]
-        
+        self.max_prompt_length = sft_config["max_prompt_length"]
+        self.max_completion_length = sft_config["max_completion_length"]
+
         num_training_steps = (
             len(self.train_dataloader) // self.accelerator.num_processes * self.n_epochs
         ) // sft_config["gradient_accumulation_steps"]
@@ -155,7 +155,7 @@ class SupervisedFineTuning(BaseVLM):
             for epoch in t:
                 epoch_result_dict = self._train_one_epoch()
                 curr_loss = sum(epoch_result_dict["loss"]) / len(epoch_result_dict["loss"])
-        
+
                 should_eval = (epoch % self.evaluating_epoch_freq == 0) or (epoch == self.n_epochs)
                 if should_eval:
                     curr_pass_rate = self.evaluate(tag=str(epoch))
@@ -172,7 +172,7 @@ class SupervisedFineTuning(BaseVLM):
                                     f"epoch_{epoch}_loss_{curr_loss:.2f}_pass_{curr_pass_rate:.2f}",
                                 )
                                 self.logger.INFO(
-                                f"New best model found at epoch {epoch} with loss {curr_loss:.4f} and pass rate: {curr_pass_rate:.2f}. Saving to {save_path} ..."
+                                    f"New best model found at epoch {epoch} with loss {curr_loss:.4f} and pass rate: {curr_pass_rate:.2f}. Saving to {save_path} ..."
                                 )
                                 self.save(save_path)
                                 self.logger.INFO(f"Finish saving model to {save_path}")
@@ -188,145 +188,5 @@ class SupervisedFineTuning(BaseVLM):
         if self.accelerator.is_main_process:
             self.recorder.close()
 
-    def evaluate(self, tag: str = None):
-    # def evaluate(self, tag: str = None, use_val=False):
-        self.model.eval()
-        # dataloader = self.val_dataloader if use_val and self.val_dataloader is not None else self.test_dataloader
-
-        total_correct = 0
-        total_consist=0
-        total_count = 0
-
-        local_log_samples = []
-
-        for batch in tqdm(
-            self.test_dataloader, disable=not self.accelerator.is_main_process, desc="Eval Loop"
-        ):
-            images = batch["images"]           # list[PIL.Image] 或 tensor
-            sys_prompts = batch["system_prompt"]
-            user_prompts = batch["user_prompt"]  # list[str]
-            answers = batch["answers"]             # list[str]
-            image_ids = batch.get("image_id", [None] * len(images))  # 假设 batch 可能包含 "image_id"
-
-            messages_batch = []
-            for img, instr, sp in zip(images, user_prompts, sys_prompts):
-                messages_batch.append([
-                {"role": "system", "content": sp},
-                {"role": "user",
-                 "content": [
-                    {"type": "image", "image": img},
-                    {"type": "text", "text": instr},
-                ]},
-            ])
-
-
-            # 用processor得到输入
-            text_batch = [
-                self.processor.apply_chat_template(msg, tokenize=False, add_generation_prompt=True)
-                for msg in messages_batch
-            ]
-            model_inputs = self.processor(
-                text=text_batch,
-                images=images,
-                padding="max_length",
-                max_length=self.max_input_length,
-                truncation=True,
-                return_tensors="pt"
-            )
-            model_inputs = {k: v.to(self.accelerator.device) for k, v in model_inputs.items()}
-
-            bad_words_ids = self.processor.tokenizer(["<tool_call>"], add_special_tokens=False).input_ids
-
-            with torch.no_grad():
-                unwrapped_model = self.accelerator.unwrap_model(self.model)
-                output_ids = unwrapped_model.generate(
-                    **model_inputs,
-                    max_new_tokens=self.max_response_length,
-                    pad_token_id=self.processor.tokenizer.pad_token_id,
-                    eos_token_id=self.processor.tokenizer.eos_token_id,
-                    bad_words_ids=bad_words_ids
-                )
-    
-            # 只取生成段
-            gen_only = output_ids[:, model_inputs["input_ids"].shape[1]:]
-            output_texts = self.processor.batch_decode(
-                gen_only, skip_special_tokens=True, clean_up_tokenization_spaces=True
-            )
-
-            for img_id,gt_ans, pred_text, instr in zip(image_ids,answers, output_texts, user_prompts):
-                pred_think, pred_ans = AnswerProcessor.extract_answer_and_cot(pred_text)
-                is_correct = int(AnswerProcessor.is_match(pred_ans, gt_ans))
-                is_consist = int(AnswerProcessor.is_match(pred_think, gt_ans)) if is_correct == 1 else 0
-
-                total_correct += is_correct
-                total_consist += is_consist
-                total_count += 1
-
-                local_log_samples.append({
-                    "image_id": img_id,
-                    "instruction": instr,
-                    "gt_answer": gt_ans,
-                    "prediction_raw": pred_text,   # 原始整段生成
-                    "pred_think": pred_think,      # 抽取的思维链
-                    "pred_answer": pred_ans,       # 抽取的答案
-                    "is_correct": is_correct,
-                    "is_consist": is_consist
-                })
-
-        # 分布式结果聚合
-        results_tensor = torch.tensor([total_correct, total_consist, total_count], dtype=torch.float32, device=self.accelerator.device)
-        if torch.distributed.is_initialized():
-            torch.distributed.all_reduce(results_tensor, op=torch.distributed.ReduceOp.SUM)
-        global_correct, global_consist, global_total = int(results_tensor[0].item()), int(results_tensor[1].item()), int(results_tensor[2].item())
-
-        accuracy = global_correct / global_total if global_total > 0 else 0.0
-        consistency = global_consist / global_correct if global_correct > 0 else 0.0
-        if self.accelerator.is_main_process:
-            json_path = "eval_samples.json" if not tag else f"eval_samples_{tag}.json"
-            if local_log_samples:
-                res_path = os.path.join(self.logger.result_dir, json_path)
-                with open(res_path, "w", encoding="utf-8") as f:
-                    json.dump(local_log_samples, f, indent=2, ensure_ascii=False)
-                self.logger.INFO(f"Saved {len(local_log_samples)} evaluation samples to {res_path}")
-                self.logger.INFO(f"Evaluation accuracy: {accuracy:.4f}")
-                self.logger.INFO(f"Consistent samples percentage: {consistency:.4f}")
-        return accuracy
-
     def __str__(self):
         return "SFT"
-
-    @classmethod
-    def load(cls, model_path: str, base_model_path: str = None, device: str = "cuda"):
-        """
-         Loads a Qwen2.5-VL model and processor from the specified path.
-         Supports both full models and LoRA adapters.
-        """
-        processor = AutoProcessor.from_pretrained(model_path)
-
-        # 检查是否为 LoRA adapter
-        adapter_config_path = os.path.join(model_path, "adapter_config.json")
-        is_lora = os.path.exists(adapter_config_path)
-
-        if is_lora:
-            print(f"###### Detected LoRA adapter in {model_path}. Loading adapter. ######")
-            if base_model_path is None:
-                raise ValueError("A `base_model_path` must be provided to load a LoRA adapter.")
-
-            model = AutoModelForVision2Seq.from_pretrained(
-                base_model_path, torch_dtype=torch.bfloat16, device_map={"": device}
-            )
-
-        
-            model = PeftModel.from_pretrained(model, model_path)
-            print("##### Successfully loaded LoRA adapter. #####")
-
-        else:
-            print(f"##### No LoRA adapter detected. Loading full model from {model_path}. #####")
-            model = AutoModelForVision2Seq.from_pretrained(
-                 model_path, torch_dtype=torch.bfloat16, device_map={"": device}
-           )
-            print("##### Successfully loaded full model. #####")
-
-        model.eval()
-
-        return model, processor
