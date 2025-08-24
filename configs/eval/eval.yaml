@@ -1,0 +1,24 @@
+model_path: ../../../qwen/Qwen2.5-VL-3B-Instruct
+tokenizer_path: ../../../qwen/Qwen2.5-VL-3B-Instruct
+lora_adapter_path: ../../../qwen/final_checkpoint
+log_dir: ../../logs
+image_dir: ../../../data/multimodal_cot/images
+test_image_dir: ../../../data/multimodal_cot/test_images
+num_workers: 4
+max_prompt_length: 2048
+max_completion_length: 768
+gradient_accumulation_steps: 2
+# whether to apply quantization
+quantization: true
+
+pipeline:
+  train:
+    seed: 42
+    train_file: ../../../data/multimodal_cot/train_data.jsonl
+    batch_size: 1
+  val:
+    val_file: ../../../data/multimodal_cot/dev_data.jsonl
+    batch_size: 1
+  test:
+    test_file: ../../../data/multimodal_cot/test.jsonl
+    batch_size: 8

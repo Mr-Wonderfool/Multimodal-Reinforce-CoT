@@ -1,8 +1,8 @@
 import os
 import re
 import json
-import tqdm
 import torch
+from tqdm import tqdm
 from datetime import timedelta
 from accelerate import Accelerator, InitProcessGroupKwargs
 
@@ -14,12 +14,14 @@ from reinforced_cot.utils import DatasetPreprocessor, AnswerProcessor
 class BaseVLM:
 
     def __init__(self, config):
-        self.train_config = config["pipeline"]["train"]
-        self.test_config = config["pipeline"]["test"]
-        self.optimizer_config = self.train_config["optimizer"]
+        self.train_config = config["pipeline"].get("train")
+        self.test_config = config["pipeline"].get("test")
+        self.optimizer_config = self.train_config.get("optimizer")
         self.config = config
         self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
+        local_rank = int(os.environ.get("LOCAL_RANK", 0))
+        torch.cuda.set_device(local_rank)
         self.accelerator = Accelerator(
             gradient_accumulation_steps=config["gradient_accumulation_steps"],
             kwargs_handlers=[InitProcessGroupKwargs(timeout=timedelta(seconds=18000))],
@@ -55,7 +57,7 @@ class BaseVLM:
         self,
         image,
         instruction,
-        max_new_tokens: int = 128,
+        max_new_tokens: int = 768,
     ):
         """
         Inference on single sample and output CoT and answer.
@@ -75,7 +77,7 @@ class BaseVLM:
             text=[text],
             images=[image],
             padding="max_length",
-            max_length=self.config.get("max_input_length", 1024),
+            max_length=self.config.get("max_prompt_length", 1024),
             truncation=True,
             return_tensors="pt",
         )

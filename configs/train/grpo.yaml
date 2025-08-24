@@ -1,8 +1,6 @@
 GRPO:
   model_path: ../../../qwen/qwen-merged-sft
   tokenizer_path: ../../../qwen/qwen-merged-sft
-  # for evaluation only
-  lora_adapter_path: ../../../qwen/final_checkpoint
   image_dir: ../../../data/multimodal_cot/images
   test_image_dir: ../../../data/multimodal_cot/test_images
   # directory for custom logging

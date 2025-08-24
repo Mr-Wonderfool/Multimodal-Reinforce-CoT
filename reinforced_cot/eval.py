@@ -6,7 +6,6 @@ from reinforced_cot.common.utils.params_manager import ParamsManager
 
 def main(args):
     config = ParamsManager.parse(args.config_path)
-    config = config[args.stage.upper()]
 
     evaluator = Evaluator(config=config)
     evaluator.evaluate(tag=args.stage.upper())
@@ -19,7 +18,7 @@ if __name__ == "__main__":
         type=str,
         required=True,
         choices=["sft", "grpo"],
-        help="The training stage to run.",
+        help="The evaluated model name.",
     )
     parser.add_argument(
         "--config_path",

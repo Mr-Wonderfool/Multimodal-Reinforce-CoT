@@ -1,5 +1,6 @@
 import torch
 from peft import PeftModel
+from torch.optim import AdamW
 from reinforced_cot.common import BaseVLM
 from transformers import AutoProcessor, AutoModelForVision2Seq, BitsAndBytesConfig
 
@@ -10,13 +11,21 @@ class Evaluator(BaseVLM):
     def __init__(self, config):
         super().__init__(config)
         # load pre-trained weights
-        self._setup_models()
+        self._setup_model_and_dummy_optimizer()
         # prepare dataloaders
         self._prepare_datasets()
         # prepare model and dataset on gpus
-        self.model, self.test_dataloader = self.accelerator.prepare(self.model, self.test_dataloader)
+        self.model, self.test_dataloader, self.optimizer = self.accelerator.prepare(
+            self.model, self.test_dataloader, self.optimizer
+        )
+        # load pretrained weights after distribution
+        lora_adapters_path = self.config["lora_adapter_path"]
+        if self.accelerator.is_main_process:
+            self.logger.INFO(f"Loading trained LoRA adapter from {lora_adapters_path}...")
+        self.model = PeftModel.from_pretrained(self.model, lora_adapters_path)
+        self.model.eval()
 
-    def _setup_models(self):
+    def _setup_model_and_dummy_optimizer(self):
         quantization_config = None
         if self.config["quantization"]:
             quantization_config = BitsAndBytesConfig(
@@ -30,16 +39,13 @@ class Evaluator(BaseVLM):
         if self.processor.tokenizer.pad_token is None:
             self.processor.tokenizer.pad_token = self.processor.tokenizer.eos_token
 
-        # base model without lora adapters
-        base_model = AutoModelForVision2Seq.from_pretrained(
+        self.model = AutoModelForVision2Seq.from_pretrained(
             self.config["model_path"],
             quantization_config=quantization_config,
         )
 
-        lora_adapters_path = self.config["lora_adapter_path"]
-        if self.accelerator.is_main_process:
-            self.logger.INFO(f"Loading LoRA adapter from {lora_adapters_path}...")
-        self.model = PeftModel.from_pretrained(base_model, lora_adapters_path)
+        # create dummy optimizer
+        self.optimizer = AdamW(self.model.parameters(), lr=1e-5)
 
     def _prepare_datasets(self):
         # hack batch size for train and val
@@ -58,4 +64,4 @@ class Evaluator(BaseVLM):
         )
 
     def __str__(self):
-        return "GRPOEvaluator"
+        return "Evaluator"
