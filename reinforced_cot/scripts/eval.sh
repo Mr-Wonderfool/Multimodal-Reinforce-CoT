@@ -4,8 +4,8 @@ export TOKENIZERS_PARALLELISM=True
 # Get the absolute path to the workspace root directory
 WS_ROOT=$(dirname $(dirname $(dirname $(realpath $0))))
 
-deepspeed_config_file="$WS_ROOT/configs/deepspeed/deepspeed_grpo.yaml"
-training_config_file="$WS_ROOT/configs/train/grpo.yaml"
+deepspeed_config_file="$WS_ROOT/configs/eval/deepspeed_eval.yaml"
+training_config_file="$WS_ROOT/configs/eval/eval.yaml"
 main_script_path="$WS_ROOT/reinforced_cot/eval.py"
 
 training_stage="grpo"

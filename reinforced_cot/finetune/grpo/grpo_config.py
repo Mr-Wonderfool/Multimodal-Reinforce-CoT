@@ -20,7 +20,6 @@ class GRPOTrainerConfig:
             "test_image_dir",
             "quantization",
             "log_dir",
-            "lora_adapter_path",
         ]
         pipeline_config = grpo_config.pop("pipeline")
         if "lora" in grpo_config:

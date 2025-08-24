@@ -15,6 +15,11 @@ class MultiModalQwenDataset(Dataset):
         self.max_length = max_length
         self.split = split
 
+        if self.split in ("val", "test"):
+            self.processor.tokenizer.padding_side = "left"
+        else:
+            self.processor.tokenizer.padding_side = "right"
+
     def __len__(self):
         return len(self.samples)
 
@@ -109,7 +114,7 @@ class DatasetPreprocessor:
 
     @classmethod
     def prepare_datasets_and_data_loaders(cls, args, accelerator, processor, evaluate: bool = False):
-        max_length = args.get("max_input_length", 1024)
+        max_length = args.get("max_prompt_length", 1024)
         num_workers = args.get("num_workers", 0)
 
         def _prepare_split(split_name):
