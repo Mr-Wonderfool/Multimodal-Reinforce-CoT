@@ -9,12 +9,12 @@ conda activate llm-finetune
 chmod 777 setup.sh
 ./setup.sh
 ```
-1. Pull Qwen2.5-VL-3B-Instruct, for which we have also provided a helper script:
+3. Pull Qwen2.5-VL-3B-Instruct, for which we have also provided a helper script:
 ```bash
 python pull_model.py
 ```
-1. Prepare the dataset, simply unzip `dataset.zip` and place it on the same level with the repository.
-2. The final project structure should look like the following:
+4. Prepare the dataset, simply unzip `dataset.zip` and place it on the same level with the repository.
+5. The final project structure should look like the following:
 ```bash
 ├─Multimodal-Reinforce-CoT
 ├─qwen
