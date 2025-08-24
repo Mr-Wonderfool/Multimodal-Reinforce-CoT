@@ -5,7 +5,7 @@ One way to enhance the reasoning capability of LLMs is to guide the model to out
 2. [Training](docs/train.md)
 3. [Evaluation](docs/evaluation.md)
 ## Project Description
-<center><img src="assets/grpo-ppo-comparsion.png" width="50%"></center>
+<center><img src="assets/grpo-ppo-comparsion.png" width="70%"></center>
 
 Group Relative Policy Optimization (GRPO) uses the normalized reward as token-level advantage estimation. This formulation made it possible to get rid of the value model (shown in the above figure). GSPO further proposes that, the dimension of reward should match the dimension of optimization objective. In this project, we design rule based reward functions covering three parts: format, correctness and **CoT consistency**. Details can be found in [reward function](reinforced_cot/finetune/grpo/reward.py). The reward curve for GRPO and GSPO are shown below, and supports the claim in GSPO paper that **consistent optimization objective and reward function promotes faster convergence**.
 
@@ -19,6 +19,6 @@ Furthermore the quantitative result show the improvement of answer accuracy and 
 | GSPO | **0.8480** |**0.9575** |
 
 The qualitative results for one example image in GQA:
-<center><img src="assets/GRPO_SFT_comparison_1.png" width="70%"></center>
+<center><img src="assets/GRPO_SFT_comparison_1.png" width="85%"></center>
 
 Which confirms the role of format and consistency reward. All in all, we found that after GRPO training, the model became more formal and consistent on the GQA dataset. The code is made open-source to promote further research on enhancing the quality of CoTs and inspire more methods on reinforcement learning for auto-regressive models.
